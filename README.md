@@ -2,8 +2,6 @@
 
 Transforma planilhas, extratos e faturas em PDF em gráficos explicados, metas e relatórios prontos para enviar.
 
-**No ar:** https://projeto-planilhas-df717.web.app
-
 ## O que faz
 
 - **Lê vários formatos:** Excel, CSV, ODS, Google Sheets, extratos e faturas em PDF e fotos de tabelas.
