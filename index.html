@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0a0b0d">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Planilhas">
+<title>Gráficos de planilhas e extratos | Painel de Planilhas</title>
+<meta name="description" content="Envie planilhas, extratos e faturas em PDF e receba gráficos explicados e relatórios prontos para baixar. Entre com sua conta Google e comece agora.">
+<link rel="canonical" href="https://projeto-planilhas-df717.web.app/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="menu-btn" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg></button>
+    <div class="logo" id="homeBtn" role="button" tabindex="0" title="Página inicial"><div class="logo-mark"><svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.8"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M6 6v8"/></svg></div>Painel de Planilhas</div>
+    <div class="spacer"></div>
+    <div class="status" id="status"><span class="dot"></span><span>Conectando…</span></div>
+    <div class="userchip hidden" id="userchip"><div class="avatar" id="avatar">?</div><span class="nm" id="uname"></span></div>
+    <button class="btn sm hidden" id="logoutBtn" title="Sair da conta Google">Sair</button>
+  </header>
+
+  <aside id="aside">
+    <div class="aside-head"><h2>Minhas planilhas</h2><div class="aside-tools"><button class="icon-btn del-all-btn" id="delAllBtn" title="Excluir todas as planilhas" aria-label="Excluir todas as planilhas"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/></svg></button><button class="icon-btn" id="addBtn" title="Enviar planilha ou arquivo" aria-label="Enviar planilha ou arquivo"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg></button><button class="icon-btn collapse-btn" id="collapseBtn" title="Recolher menu" aria-label="Recolher menu" aria-expanded="true"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5 5 8l4.5 4.5M13 3.5v9"/></svg></button></div></div>
+    <div class="bases" id="bases"></div>
+    <div class="aside-foot"><button class="base-item nav-item adv" id="modelNav" title="Ligar planilhas"><div class="ic"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"><rect x="1.5" y="2" width="5" height="4" rx="1"/><rect x="9.5" y="10" width="5" height="4" rx="1"/><rect x="9.5" y="2" width="5" height="4" rx="1"/><path d="M6.5 4h3M12 6v4"/></svg></div><div class="txt"><div class="nm">Ligar planilhas</div><div class="sub">Juntar por uma coluna em comum</div></div></button><button class="base-item nav-item adv" id="cqNav" title="Consultas de CNPJ e CEP"><div class="ic"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14M5 7h4M7 5v4"/></svg></div><div class="txt"><div class="nm">Consultas</div><div class="sub">CNPJ e CEP</div></div></button><button class="base-item nav-item adv" id="sqlNav" title="Consulta SQL em todas as bases"><div class="ic"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg></div><div class="txt"><div class="nm">Consulta SQL</div><div class="sub">Todas as planilhas</div></div></button><button class="base-item nav-item" id="advNav" title="Mostrar ou esconder as ferramentas avançadas"><div class="ic"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"><path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7"/><circle cx="11" cy="4.5" r="1.6"/><circle cx="5" cy="11.5" r="1.6"/></svg></div><div class="txt"><div class="nm">Ferramentas avançadas</div><div class="sub">SQL, ligar planilhas, CNPJ/CEP</div></div></button><button class="base-item" id="profileNav" title="Meu perfil"><div class="ic" id="profileNavIc"></div><div class="txt"><div class="nm">Meu perfil</div><div class="sub" id="profileNavSub">Nome, função e empresa</div></div></button></div>
+  </aside>
+
+  <main id="main"></main>
+</div>
+<input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm,.csv,.ods,.tsv,.txt,.pdf,.png,.jpg,.jpeg,.webp,.bmp,.gif" multiple class="hidden">
+<div class="drawer-bg" id="drawerBg" aria-hidden="true"></div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

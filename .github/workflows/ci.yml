@@ -1,0 +1,74 @@
+name: Testes e publicação
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    name: Tipos, lint, testes e build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - name: Navegador dos testes de ponta a ponta
+        run: npx playwright install --with-deps chromium
+      - name: Testes de ponta a ponta (computador e celular)
+        run: npm run e2e
+      - name: Relatório dos testes (se falhar)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  publicar:
+    name: Publicar no Firebase Hosting
+    needs: testes
+    runs-on: ubuntu-latest
+    env:
+      TEM_CHAVE: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Sem a chave FIREBASE_SERVICE_ACCOUNT, a publicação é pulada
+        if: env.TEM_CHAVE != 'true'
+        run: echo "::notice::Publicação pulada. Adicione o segredo FIREBASE_SERVICE_ACCOUNT para publicar automaticamente."
+      # push na main: publica no site oficial
+      - if: env.TEM_CHAVE == 'true' && github.event_name == 'push'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: projeto-planilhas-df717
+          channelId: live
+      # pull request: publica uma prévia temporária (7 dias) e comenta o link no PR
+      - if: env.TEM_CHAVE == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: projeto-planilhas-df717
+          expires: 7d

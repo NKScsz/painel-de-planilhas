@@ -1,0 +1,198 @@
+/* Sistema visual "Livro-caixa" (camada final) */
+/* =====================================================================
+   SISTEMA VISUAL "LIVRO-CAIXA" (nov/2026), revisado com unslop by @heydamir (CC BY 4.0)
+   Direção: exato, paciente, didático. O livro-caixa de quem cuida das contas.
+   - Superfícies grafite neutras; profundidade por degraus de superfície e linhas finas, sem brilhos.
+   - Uma cor de destaque (o azul da marca, a "caneta de conferência"), usada pouco:
+     ação principal, seleção e a série que importa no gráfico.
+   - Títulos em peso 500; espaçamento negativo só em títulos grandes.
+   - Assinatura: o traço de ritmo (onde você deveria estar hoje) nas barras de meta.
+   Medidas que o celular ajusta ficam em @media (min-width:861px).
+   ===================================================================== */
+:root{
+  --bg:#141415; --surface:#19191b; --surface-2:#202022; --surface-3:#28282b; --sidebar:#0f0f10;
+  --border:rgba(237,237,237,.08); --border-strong:rgba(237,237,237,.13); --line:rgba(237,237,237,.08); --grid:#232325;
+  --text:#dcdcde; --text-strong:#ededed; --text-2:#a1a1a6; --text-3:#85858b;
+  --accent:#4a7dff; --accent-strong:#3563e0; --accent-hover:#2f5bd6; --accent-weak:#1b2236; --accent-ring:rgba(74,125,255,.35);
+  --bar-neutral:#4a4a50;
+  --good:#4cc38a; --warn:#e2a336; --danger:#e5484d; --danger-weak:#2a1718;
+  --r:8px; --r-lg:12px;
+  --e1:none;
+  --e2:0 12px 32px -12px rgba(0,0,0,.6);
+  --e3:0 24px 64px -16px rgba(0,0,0,.7);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+body{background:var(--bg);font-feature-settings:'cv11','ss01'}
+::selection{background:rgba(74,125,255,.35);color:#fff}
+*{scrollbar-width:thin;scrollbar-color:#3a3a3e transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#333337;border-radius:10px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background-color:#45454a}
+::-webkit-scrollbar-track{background:transparent}
+main{background:var(--bg)}
+
+/* topo e logo: marca plana, cor sólida, sem brilho */
+header.top{background:var(--sidebar);border-bottom:1px solid var(--border)}
+.logo-mark,.login-mark{background:var(--accent);box-shadow:none}
+.logo{letter-spacing:0;font-weight:500}
+.userchip{border-color:var(--border);background:transparent}
+.avatar{background:var(--surface-3);color:var(--text-strong)}
+
+/* menu lateral */
+aside{background:var(--sidebar);border-right:1px solid var(--border)}
+.aside-head h2{font-size:12px!important;font-weight:500!important;color:var(--text-3)}
+.base-item{border-radius:8px;transition:background-color .15s var(--ease)}
+.base-item:hover{background:var(--surface)}
+.base-item.active{background:var(--surface-2);box-shadow:inset 2px 0 0 var(--accent)}
+.base-item .nm{font-weight:500}
+.base-item .ic{background:var(--surface);border:1px solid var(--border);color:var(--text-2)}
+.base-item.active .ic{background:var(--surface-3);border-color:var(--border-strong);color:var(--text-strong)}
+.base-item .sub{color:var(--text-3)}
+.aside-foot{border-top:1px solid var(--border)}
+
+/* botões: cor sólida; o principal tem só um realce fino no topo */
+.btn{background:var(--surface-2);color:var(--text-strong);border:1px solid var(--border-strong);box-shadow:none;font-weight:500;transition:background-color .15s var(--ease),border-color .15s var(--ease),transform .12s var(--ease)}
+.btn:hover:not(:disabled){background:var(--surface-3);border-color:rgba(237,237,237,.18)}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.primary{background:var(--accent-strong);border-color:transparent;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.btn.primary:hover:not(:disabled){background:var(--accent-hover);border-color:transparent}
+.btn.danger{background:transparent;border-color:rgba(229,72,77,.45);color:var(--danger)}
+.btn.danger:hover:not(:disabled){background:var(--danger-weak);border-color:var(--danger)}
+.btn:disabled{opacity:.5}
+.btn.whats{background:#15803d;border-color:transparent;color:#fff}
+.btn.whats:hover:not(:disabled){background:#166534}
+.icon-btn{color:var(--text-3);transition:background-color .15s var(--ease),color .15s var(--ease)}
+.icon-btn:hover{background:var(--surface-2);color:var(--text-strong)}
+.help-btn{border-color:var(--border-strong);background:transparent;color:var(--text-2);font-weight:500}
+.help-btn:hover{background:var(--surface-2);color:var(--text-strong)}
+.help-btn svg.ico{color:var(--text-3)}
+.google-btn{box-shadow:none;font-weight:500}
+
+/* campos */
+.field select,.field input,.chart-controls select,.search input,.col-row select,.form-grid .field input,.goal-form .field>input,.sheet-form .field>input,.share-url input,.modal textarea{background:var(--surface-2);border:1px solid var(--border-strong);border-radius:8px;color:var(--text-strong);transition:border-color .15s var(--ease),box-shadow .15s var(--ease)}
+input:focus,select:focus,textarea:focus{outline:0!important;border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-ring)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.search input{background:var(--surface)}
+
+/* abas (no computador; no celular viram a barra do rodapé) */
+@media (min-width:861px){
+  .tab{color:var(--text-2);font-weight:500;border-radius:8px 8px 0 0;transition:color .15s var(--ease),background-color .15s var(--ease)}
+  .tab:hover{color:var(--text-strong);background:var(--surface)}
+  .tab.active{color:var(--text-strong);border-bottom-color:var(--accent)}
+}
+.tabs{border-bottom-color:var(--border)}
+
+/* cartões: superfície um degrau acima do fundo e linha fina, sem sombra */
+.chart-card,.kpis,.table-card,.p-card,.filters,.rel-item,.profile-hero,.preview,.goal,.anom-card,.lp-f,.qcard,.bcard,.h-ledger,.teach,.goals-empty,.login-card,.easy-sum,.ck-step,.h-index .ix,.h-index .ix:last-child{background:var(--surface);border-color:var(--border);box-shadow:none}
+.chart-card{border-radius:var(--r-lg);transition:border-color .15s var(--ease)}
+.chart-card:hover{border-color:var(--border-strong)}
+.chart-card.editing{border-color:var(--accent)}
+.chart-title{color:var(--text-strong);letter-spacing:0;font-weight:500}
+.chart-sub{color:var(--text-3)}
+.chart-note{border-top:1px solid var(--border);background:transparent;color:var(--text-2)}
+.chart-note b{color:var(--text-3);font-weight:500}
+.kpis{border-radius:var(--r-lg);overflow:hidden}
+.kpis .kpi{background:transparent;border-color:var(--border)}
+.kpi .vl{color:var(--text-strong);font-weight:500;font-variant-numeric:tabular-nums}
+.kpi .lb{color:var(--text-3)}
+.goal{border-radius:var(--r-lg)}
+.g-bar{background:var(--surface-3)}
+.anom-card{border-radius:var(--r-lg)}
+.add-card{border-color:var(--border-strong);background:transparent;font-weight:500}
+.add-card:hover{border-color:var(--text-3);background:var(--surface);color:var(--text-strong)}
+@media (min-width:861px){
+  .chart-card{padding:20px 20px 16px}
+  .kpi{padding:16px 20px}
+  .goal{padding:16px 20px}
+  .anom-card{padding:12px 16px}
+  .filters{padding:12px 16px}
+  .easy-sum{padding:16px 20px}
+}
+
+/* resumo, perguntas e período */
+.easy-sum{border:1px solid var(--border)}
+.ask-chip{background:transparent;border-color:var(--border-strong);color:var(--text);transition:border-color .15s var(--ease),background-color .15s var(--ease)}
+.ask-chip:hover{border-color:rgba(237,237,237,.22);background:var(--surface)}
+.qp{background:transparent;border-color:var(--border-strong);color:var(--text-2)}
+.qp:hover{background:var(--surface-2);color:var(--text-strong)}
+.qp.on{background:var(--surface-3);border-color:rgba(237,237,237,.22);color:var(--text-strong);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.chip{border-color:var(--border-strong);color:var(--text-2)}
+.filter-chip{background:var(--surface-2);border:1px solid var(--border-strong);color:var(--text-strong)}
+
+/* tabela densa: cabeçalho, linha sob o mouse e foco se distinguem */
+.table-card{border-radius:var(--r-lg);overflow:hidden}
+table.data th{background:var(--surface-2);color:var(--text-2);font-weight:500;font-size:12.5px;border-bottom:1px solid var(--border-strong)}
+table.data th:hover{color:var(--text-strong)}
+table.data td{border-bottom-color:var(--border);color:var(--text)}
+table.data tbody tr:hover td{background:var(--surface-2)}
+.pager{border-top:1px solid var(--border);background:var(--surface)}
+
+/* janelas, menus e avisos: só o que flutua tem sombra, neutra */
+.modal-bg{background:rgba(8,8,9,.7)}
+.modal{background:var(--surface);border:1px solid var(--border-strong);box-shadow:var(--e3)}
+.modal h3{font-weight:500}
+.pop-menu{background:var(--surface);border-color:var(--border-strong);box-shadow:var(--e3)}
+.pop-it b{font-weight:500}
+.pop-it:hover:not(:disabled),.pop-it:focus-visible{background:var(--surface-2)}
+.toast{background:var(--surface-3);color:var(--text-strong);border:1px solid var(--border-strong);box-shadow:var(--e2)}
+.toast.err{background:#2e1416;border-color:rgba(229,72,77,.5);color:#ffd9da}
+.tour-card{background:var(--surface);border-color:var(--border-strong);box-shadow:var(--e3)}
+.banner{background:var(--surface);border-color:var(--border)}
+.banner.warn{background:var(--surface);border-color:rgba(226,163,54,.35);color:var(--text)}
+.dirtybar{background:var(--surface-2);border:1px solid var(--border-strong)}
+.sug,.type-opt,.choice{background:var(--surface-2);border-color:var(--border)}
+.sug:hover,.type-opt:hover:not(:disabled),.choice:hover{border-color:rgba(237,237,237,.22);background:var(--surface-3)}
+.sug.sel,.type-opt.sel{border-color:var(--accent);background:var(--surface-3)}
+
+/* primeiros passos */
+.ck-step.next{border-color:var(--border-strong);background:var(--surface-2)}
+.ck-step.done .c{background:var(--good);border-color:var(--good);color:#0f0f10}
+.ck-bar{background:var(--surface-3)}
+.ck-bar i{background:var(--accent)}
+
+/* página inicial */
+.home .home-drop{background:var(--surface);border-color:var(--border-strong)}
+.home .home-drop:hover,.home .home-drop.over{border-color:var(--text-3);background:var(--surface-2)}
+.home .home-drop .di{background:var(--surface-3);color:var(--text-strong)}
+.h-index .ix:hover:not(:disabled){background:var(--surface-2);border-color:var(--border-strong)}
+.qcard:hover:not(:disabled){transform:none;border-color:var(--border-strong)}
+.qcard .qi,.lp-ic{background:var(--surface-3);color:var(--text-2)}
+.lg-row:hover{background:var(--surface)}
+
+/* títulos: hierarquia por tamanho e cor, peso 500; nada de degradê no texto */
+h1,h2,h3,.title-input,textarea.title-input,.h-hero h1,.login-main h1,.home .home-drop h3,.lp-sec h2,.empty-box h1,.model-head h1,.profile-hero h1,.h-ledger .v,.ix b,.steps b,.qcard b,.lp-f b,.mhead .mname,.p-card h2{font-weight:500;color:var(--text-strong);background:none;-webkit-text-fill-color:currentColor}
+.easy-sum h3,.goals-h h3,.anom h3,.ck-h h2,.sec-title h2,.tour-card b,.teach b,.chart-title,.goal b,.anom-card b,.ck-step .t{font-family:var(--sans);letter-spacing:0;font-weight:500}
+.goals-h h3,.anom h3{font-size:16px}
+.login-main{background:none}
+.login-side{background:var(--sidebar);border-left:1px solid var(--border)}
+
+/* indicadores ocupam a faixa toda, sem casa vazia no fim */
+@media (min-width:861px){ .kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))} }
+
+/* ---------- Prévia do painel na entrada (dados fictícios) ----------
+   O "momento" da página de entrada: o que o produto entrega, desenhado em código. */
+.lp-prev{border:1px solid var(--border-strong);border-radius:16px;background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:16px;max-width:520px;width:100%}
+.lp-prev .ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.lp-prev .ph b{font-weight:500;color:var(--text-strong);font-size:14px}
+.lp-prev .ph span{font-size:12px;color:var(--text-3)}
+.lp-prev .pk{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.lp-prev .pk small{display:block;font-size:12px;color:var(--text-3)}
+.lp-prev .pk .v{font-size:32px;line-height:1;font-weight:500;color:var(--text-strong);font-variant-numeric:tabular-nums;margin-top:8px;font-family:var(--sans)}
+.lp-prev .pk .d{font-size:12px;color:var(--good);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lp-prev .pc{display:block;width:100%;height:auto}
+.lp-prev .pc text{fill:var(--text-3);font:400 11px var(--sans);font-variant-numeric:tabular-nums}
+.lp-prev .pn{font-size:12.5px;line-height:1.5;color:var(--text-2);border-top:1px solid var(--border);padding-top:12px}
+.lp-prev .pn b{color:var(--text-3);font-weight:500;display:block;margin-bottom:2px}
+.lp-prev .pg{display:flex;flex-direction:column;gap:8px}
+.lp-prev .pg .gt{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.lp-prev .pg .gt b{font-weight:500;color:var(--text-strong)}
+.lp-prev .gb{position:relative;height:8px;border-radius:4px;background:var(--surface-3)}
+.lp-prev .gb i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--good)}
+.lp-prev .gb u{position:absolute;top:-4px;bottom:-4px;width:2px;border-radius:1px;background:var(--text-strong)}
+.lp-prev .gs{font-size:12px;color:var(--text-3)}
+.login-side .kicker{margin-top:8px}
+.steps .n{color:var(--text-3);font-weight:500;font-variant-numeric:tabular-nums}
+.h-hero p{max-width:44ch}
+@media (min-width:861px){ .login-side{justify-content:center;gap:24px} }
+
+@media (prefers-reduced-motion:reduce){ .enter>*,.enter .stagger>*{animation:none!important} }

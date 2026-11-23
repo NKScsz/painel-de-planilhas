@@ -1,0 +1,8 @@
+/* As camadas vêm nesta ordem: cada uma pode sobrescrever a anterior. */
+@import './01-base.css';
+@import './02-editorial.css';
+@import './03-tema-escuro.css';
+@import './04-recursos.css';
+@import './05-celular.css';
+@import './06-icones-titulo.css';
+@import './07-livro-caixa.css';

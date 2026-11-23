@@ -1,3 +1,12 @@
+# dependências e build
+node_modules/
+dist/
+
+# testes
+playwright-report/
+test-results/
+coverage/
+
 # cópias de segurança locais
 backup_*.html
 
@@ -6,9 +15,11 @@ backup_*.html
 firebase-debug.log*
 firestore-debug.log*
 
+# chave de conta de serviço (nunca versionar)
+*service-account*.json
+
 # sistema e editores
 .DS_Store
 Thumbs.db
 desktop.ini
 .vscode/
-node_modules/

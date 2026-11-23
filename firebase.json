@@ -1,19 +1,25 @@
 {
   "hosting": {
-    "public": ".",
-    "ignore": [
-      "firebase.json",
-      "firestore.rules",
-      ".firebaserc",
-      "**/.*",
-      "**/node_modules/**",
-      "backup_*.html",
-      "README.md"
-    ],
-    "rewrites": [
-      { "source": "/", "destination": "/Painel de Planilhas.html" }
+    "public": "dist",
+    "predeploy": ["npm run check"],
+    "ignore": ["**/.*", "**/*.map"],
+    "redirects": [
+      { "source": "/Painel de Planilhas.html", "destination": "/", "type": 301 },
+      { "source": "/Painel%20de%20Planilhas.html", "destination": "/", "type": 301 }
     ],
     "headers": [
+      {
+        "source": "/",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/index.html",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
       {
         "source": "/robots.txt",
         "headers": [{ "key": "Content-Type", "value": "text/plain; charset=utf-8" }]

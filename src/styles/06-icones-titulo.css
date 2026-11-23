@@ -1,0 +1,29 @@
+/* Ícones de linha fina e nome da planilha */
+/* ===== Ícones de linha fina ===== */
+.add-in{display:inline-flex;align-items:center;gap:8px}
+svg.ico{flex:none;display:inline-block;vertical-align:-3px;overflow:visible}
+.btn svg.ico{color:var(--text-2);margin-left:-2px}
+.btn.primary svg.ico{color:inherit}
+.btn:hover svg.ico{color:inherit}
+.icon-btn{display:inline-grid;place-items:center;line-height:1}
+.icon-btn svg.ico{width:15px;height:15px}
+.icon-btn:hover{color:var(--text-strong)}
+.tab svg.ico{color:var(--text-3)}
+.tab.active svg.ico,.tab:hover svg.ico{color:inherit}
+table.data th .ty{display:inline-flex;align-items:center;margin:0 7px 0 0;vertical-align:-2px;color:var(--text-3);font-size:inherit;letter-spacing:0}
+table.data th.num .ty{margin:0 7px 0 0}
+table.data th .ty svg{width:14px;height:14px}
+.help-btn{padding:4px 11px 4px 8px}
+.help-btn svg.ico{color:var(--accent)}
+.tv-btn{display:inline-flex;align-items:center;gap:6px}
+.pop-it svg.ico{width:16px;height:16px}
+.search svg.ico{width:15px;height:15px;color:var(--text-3)}
+@media (hover:hover){ table.data td.rowact .icon-btn{opacity:0;transition:opacity .15s} table.data tr:hover td.rowact .icon-btn,table.data td.rowact .icon-btn:focus-visible{opacity:1} }
+table.data td.rowact .icon-btn:hover{color:var(--danger,#e5484d)}
+/* ===== Nome da planilha inteiro ===== */
+textarea.title-input{display:block;resize:none;overflow:hidden;max-width:none;width:100%;white-space:pre-wrap;word-break:break-word;line-height:1.12;font:inherit;color:var(--text-strong,#fff);font-family:var(--display);font-weight:700}
+textarea.title-input{font-size:clamp(22px,2.4vw,34px)}
+textarea.title-input.long{font-size:clamp(20px,1.9vw,28px)}
+.title-wrap{min-width:0;flex:1 1 360px}
+.base-item .nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;line-height:1.25;word-break:break-word}
+@media (max-width:860px){ textarea.title-input,textarea.title-input.long{font-size:22px!important} }

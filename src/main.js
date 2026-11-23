@@ -1,0 +1,96 @@
+// Ponto de entrada: estilos, todos os módulos e o que roda ao abrir a página (na ordem original).
+import './styles/index.css';
+import './config/firebase-config.js';
+import './core/state.js';
+import './core/utils.ts';
+import './core/values.ts';
+import './import/spreadsheet.js';
+import './import/pdf-image.js';
+import './core/storage.js';
+import './app/init.js';
+import './import/upload.js';
+import './charts/auto-charts.js';
+import './app/render.js';
+import './views/data-model.js';
+import './views/home.js';
+import './views/profile.js';
+import './views/data-tab.js';
+import './views/reports-tab.js';
+import './views/deck-tab.js';
+import './views/charts-tab.js';
+import './views/new-chart.js';
+import './charts/draw-and-pdf.js';
+import './features/extras.js';
+import './features/compare.js';
+import './features/goals.js';
+import './features/forecast.js';
+import './features/share.js';
+import './features/google-sheets.js';
+import './features/categorize.js';
+import './features/clean.js';
+import './features/auto-clean.js';
+import './features/templates.js';
+import './features/brand.js';
+import './features/cnpj-cep.js';
+import './features/sql.js';
+import './features/calc-columns.js';
+import './charts/extra-types.js';
+import './features/anomalies.js';
+import './features/drag-charts.js';
+import './features/sample-and-tour.js';
+import './easy/simple-mode.js';
+import './easy/help.js';
+import './easy/summary.js';
+import './easy/ask.js';
+import './easy/checklist.js';
+import './features/history.js';
+import './features/bulk-delete.js';
+import './features/tv-mode.js';
+import './app/modals.js';
+import { goHome, init, openProfile, setAsideCollapsed, signOut } from './app/init.js';
+import { render } from './app/render.js';
+import { S } from './core/state.js';
+import { $, toast } from './core/utils.ts';
+import { LS, applySimple, setSimple } from './easy/simple-mode.js';
+import { bulkDelete } from './features/bulk-delete.js';
+import { openConsultas } from './features/cnpj-cep.js';
+import { openSql } from './features/sql.js';
+import { keepAwake } from './features/tv-mode.js';
+import { handleFiles, pickFile } from './import/upload.js';
+import { deleteRelation, openModel } from './views/data-model.js';
+
+if ('serviceWorker' in navigator&&location.protocol==='https:') navigator.serviceWorker.register('/sw.js').catch(e=>console.warn(e));
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); S.installEvt=e; if(S.view==='home'||S.view==='perfil') render(); });
+window.addEventListener('appinstalled',()=>{ S.installEvt=null; toast('App instalado. Abra pelo ícone “Planilhas”.'); });
+$('#userchip').addEventListener('click',openProfile);
+$('#profileNav').addEventListener('click',openProfile);
+$('#modelNav').addEventListener('click',()=>openModel());
+$('#cqNav').addEventListener('click',()=>openConsultas());
+$('#sqlNav').addEventListener('click',()=>openSql());
+$('#collapseBtn').addEventListener('click',()=>setAsideCollapsed(!document.querySelector('.app').classList.contains('collapsed')));
+try{ if(localStorage.getItem('asideCollapsed')==='1') setAsideCollapsed(true); }catch(e){}
+$('#homeBtn').addEventListener('click',goHome);
+$('#homeBtn').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); goHome(); } });
+$('#logoutBtn').onclick=signOut;
+$('#fileInput').addEventListener('change',e=>handleFiles([...e.target.files]));
+$('#addBtn').onclick=()=>pickFile('new');
+$('#delAllBtn').onclick=()=>{ if(!S.bases.length){ toast('Você ainda não tem bases.'); return; } bulkDelete(S.bases.map(b=>b.id)); };
+$('#menuBtn').onclick=()=>$('#aside').classList.toggle('open');
+$('#drawerBg').onclick=()=>$('#aside').classList.remove('open');
+document.addEventListener('keydown',e=>{
+  if (S.view!=='modelo'||document.querySelector('.modal-bg')) return;
+  if (e.target&&e.target.closest&&e.target.closest('input,select,textarea')) return;
+  if ((e.key==='Delete'||e.key==='Backspace')&&S.modelSel&&!S.readOnly){
+    const r=(S.model.relationships||[]).find(x=>x.id===S.modelSel); if(r){ e.preventDefault(); deleteRelation(r); }
+  } else if (e.key==='Escape'&&S.modelSel){ S.modelSel=null; render(); }
+});
+if (window.Chart){ Chart.defaults.font.family="'Inter', system-ui, sans-serif"; Chart.defaults.font.size=12; }
+S.simple=LS.get('modoSimples','1')==='1';
+applySimple();
+$('#advNav').onclick=()=>{ $('#aside').classList.remove('open'); setSimple(!S.simple); };
+S.tvTimers=[];
+S.tvLong=[];
+document.addEventListener('visibilitychange',()=>{ if(S.view==='tv'&&document.visibilityState==='visible') keepAwake(); });
+window.addEventListener('beforeunload',e=>{ if(S.dirty||S.profileDirty){ e.preventDefault(); e.returnValue=''; } });
+if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{ if(S.tab==='graficos') render(); });
+init();
