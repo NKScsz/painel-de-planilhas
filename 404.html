@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Página não encontrada | Painel de Planilhas</title>
+<meta name="description" content="Esta página não existe ou mudou de endereço. Volte ao Painel de Planilhas para transformar suas planilhas e extratos em gráficos.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --line:#41403b;
+  --text:#f0efec; --text-2:#c3c2b7; --text-3:#8f8e86;
+  --accent:#3987e5; --accent-strong:#2a78d6; --r:2px;
+  --display:'Inter Tight','Inter',ui-sans-serif,system-ui,sans-serif; --sans:'Inter',ui-sans-serif,system-ui,sans-serif; --mono:'Inter',ui-sans-serif,system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;display:flex;flex-direction:column;min-height:100vh;-webkit-font-smoothing:antialiased}
+header{display:flex;align-items:center;padding:0 18px;height:56px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-stretch:108%;font-weight:800;font-size:15px;color:var(--text);text-decoration:none}
+.logo-mark{width:28px;height:28px;border-radius:var(--r);background:var(--accent-strong);display:grid;place-items:center}
+main{flex:1;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:clamp(16px,2.4vw,32px);padding:clamp(40px,8vw,120px) clamp(16px,4vw,64px);align-content:start}
+.box{grid-column:1/span 8}
+.kicker{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);display:flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:22px;height:1px;background:var(--accent)}
+.code{font-family:var(--display);font-stretch:120%;font-weight:900;font-size:clamp(96px,18vw,240px);letter-spacing:-.06em;line-height:.85;margin:18px 0 0}
+h1{font-family:var(--display);font-stretch:110%;font-weight:800;font-size:clamp(26px,3.2vw,44px);letter-spacing:-.035em;line-height:1;margin:22px 0 12px}
+p{color:var(--text-2);margin:0 0 28px;max-width:44ch;font-size:clamp(15px,1.3vw,18px)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:var(--r);font-weight:600;font-size:14px;text-decoration:none;border:1px solid var(--accent-strong);background:var(--accent-strong);color:#fff;
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),background .18s}
+.btn:hover{background:var(--accent);transform:translate(-2px,-2px);box-shadow:3px 3px 0 #9ec5f4}
+.btn:active{transform:none;box-shadow:none;transition-duration:.06s}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+nav.links{grid-column:10/-1;align-self:end;margin-top:32px}
+nav.links h2{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin:0 0 8px}
+nav.links ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+nav.links li{border-bottom:1px solid var(--line);padding:12px 0}
+nav.links a{color:var(--text);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:var(--accent)}
+nav.links a:hover{color:var(--accent)}
+nav.links span{display:block;color:var(--text-3);font-size:13px;margin-top:2px}
+/* inspiração TradingView: preto profundo, azul #2962ff, cantos suaves, rótulos em caixa normal */
+:root{--bg:#0f0f0f;--surface:#161a25;--line:#2a2e39;--text:#d1d4dc;--text-2:#b2b5be;--text-3:#787b86;--accent:#2962ff;--accent-strong:#2962ff;--r:8px;
+  --display:'Plus Jakarta Sans','Inter',ui-sans-serif,system-ui,sans-serif}
+body *{font-stretch:normal!important}
+h1,.code,.logo{color:#fff;font-family:var(--display);font-weight:700}
+.code{letter-spacing:-.04em;font-size:clamp(88px,15vw,200px)}
+h1{letter-spacing:-.02em}
+.logo-mark{border-radius:7px}
+.kicker,nav.links h2{text-transform:none;letter-spacing:0;font-size:12px}
+.kicker::before{display:none}
+.btn{border:0;border-radius:var(--r);background:var(--accent)}
+.btn:hover{background:#1e53e5;transform:none;box-shadow:none}
+nav.links ul{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:0 16px}
+nav.links li:last-child{border-bottom:0}
+@media (max-width:860px){.box,nav.links{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/"><span class="logo-mark"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="#fff" stroke-width="1.8" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M6 6v8"/></svg></span>Painel de Planilhas</a>
+</header>
+<main>
+  <div class="box">
+    <div class="kicker">Erro 404 — endereço não encontrado</div>
+    <div class="code" aria-hidden="true">404</div>
+    <h1>Esta página não existe.</h1>
+    <p>O endereço que você abriu não existe ou mudou de lugar. Use um dos caminhos ao lado para continuar.</p>
+    <div class="actions">
+      <a class="btn" href="/">Ir para o Painel de Planilhas</a>
+      <!-- Botão de contato: será adicionado quando o WhatsApp/e-mail de atendimento for informado. -->
+    </div>
+  </div>
+  <nav class="links" aria-label="Páginas principais">
+    <h2>Páginas principais</h2>
+    <ul>
+      <li><a href="/">Painel de Planilhas: gráficos e relatórios das suas planilhas</a><span>Entre com sua conta Google para ver suas bases, gráficos e relatórios em PDF.</span></li>
+    </ul>
+  </nav>
+</main>
+</body>
+</html>

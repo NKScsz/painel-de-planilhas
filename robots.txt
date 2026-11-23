@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /__/
+Disallow: /404.html
+
+Sitemap: https://projeto-planilhas-df717.web.app/sitemap.xml

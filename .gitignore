@@ -1,0 +1,14 @@
+# cópias de segurança locais
+backup_*.html
+
+# cache e logs do Firebase CLI
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+
+# sistema e editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+node_modules/
