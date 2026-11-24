@@ -5,6 +5,7 @@ Transforma planilhas, extratos e faturas em PDF em gráficos explicados, metas e
 ## O que faz
 
 - **Lê vários formatos:** Excel, CSV, ODS, Google Sheets, extratos em PDF ou **OFX**, **XML de notas fiscais (NF-e e NFC-e)** e fotos de tabelas.
+- **Google Drive:** conecta uma pasta inteira (com subpastas) ou arquivos escolhidos; cada arquivo vira uma planilha e o botão **Atualizar** traz arquivos novos e alterações. Roda no navegador, sem servidor.
 - **Arruma os dados:** remove linhas de total, cabeçalhos repetidos e linhas vazias, corrige tipos e padroniza nomes escritos de jeitos diferentes.
 - **Monta os gráficos sozinho,** de acordo com o tipo de dado: linha, barras, empilhadas, rosca, funil, mapa do Brasil e tabela resumo. Cada gráfico vem com uma explicação curta.
 - **Acompanha metas e limites** no ritmo do mês e avisa quando algo foge do padrão.

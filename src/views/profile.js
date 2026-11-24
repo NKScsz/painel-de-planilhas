@@ -7,6 +7,7 @@ import { el, fmtWhen, nf, toast } from '../core/utils.ts';
 import { popMenu } from '../easy/simple-mode.js';
 import { brandCard } from '../features/brand.js';
 import { bulkDelete } from '../features/bulk-delete.js';
+import { refreshDrive } from '../features/google-drive.js';
 import { sheetDialog, syncSheet } from '../features/google-sheets.js';
 import { shareDialog } from '../features/share.js';
 import { tvDialog } from '../features/tv-mode.js';
@@ -107,14 +108,15 @@ function pageHead(meta){
   ti.addEventListener('keydown',e=>{if(e.key==='Enter'){ e.preventDefault(); ti.blur(); } if(e.key==='Escape'){ti.value=meta.name;fit();ti.blur();}});
   ti.addEventListener('change',async()=>{ const v=ti.value.trim(); if(!v||v===meta.name){ti.value=meta.name;return;} const m=structuredClone(meta); m.name=v; try{await saveMeta(m);}catch(e){handleWriteError(e);} });
   return el('div',{class:'page-head'},
-    el('div',{class:'title-wrap'},ti,el('div',{class:'meta-line',text:`${nf.format(S.rows?S.rows.length:meta.rowCount||0)} linhas · ${meta.columns.length} colunas · ${meta.source?.type==='gsheet'?`Google Sheets · sincronizado em ${fmtWhen(meta.source.syncedAt)}`:`arquivo ${meta.fileName||'—'} · atualizado em ${fmtWhen(meta.updatedAt)}`}`}),
+    el('div',{class:'title-wrap'},ti,el('div',{class:'meta-line',text:`${nf.format(S.rows?S.rows.length:meta.rowCount||0)} linhas · ${meta.columns.length} colunas · ${meta.source?.type==='gdrive'?`Google Drive · ${meta.source.missing?'o arquivo saiu do Drive':'atualizado em '+fmtWhen(meta.source.syncedAt)}`:meta.source?.type==='gsheet'?`Google Sheets · sincronizado em ${fmtWhen(meta.source.syncedAt)}`:`arquivo ${meta.fileName||'—'} · atualizado em ${fmtWhen(meta.updatedAt)}`}`}),
       meta.share?.token?el('button',{class:'share-pill',onclick:()=>shareDialog(meta),title:'Este painel tem um link público ativo'},el('span',{class:'dot ok'}),'Link de compartilhamento ativo'):null),
     el('div',{class:'head-actions'},
       el('button',{class:'btn primary','data-tour':'pdf',onclick:()=>exportChartsPdf(meta),disabled:!S.rows||!(meta.charts||[]).length,title:'Baixa um relatório em PDF com os gráficos (respeitando os filtros da aba Gráficos) e uma explicação de cada um'},icon('pdf'),'Baixar PDF'),
       S.mode==='cloud'&&!S.readOnly?el('button',{class:'btn',onclick:()=>shareDialog(meta),title:'Crie um link para clientes verem este painel sem login'},icon('send'),'Compartilhar'):null,
       el('button',{class:'btn','data-tour':'more','aria-haspopup':'menu',title:'Modo TV, atualizar a planilha, baixar em Excel, excluir…',onclick:e=>popMenu(e.currentTarget,[
         {icon:'tv',label:'Modo TV',hint:'Painel em tela cheia para a TV da empresa, atualizado ao vivo',onclick:()=>tvDialog(meta),disabled:!S.rows},
-        meta.source?.type==='gsheet'?{icon:'upload',label:'Sincronizar com o Google Sheets',hint:'Busca agora a versão mais nova da planilha',onclick:()=>syncSheet(meta,false),disabled:S.readOnly}
+        meta.source?.type==='gdrive'?{icon:'refresh',label:'Atualizar pelo Google Drive',hint:'Confere o Drive e traz a versão mais nova (e arquivos novos da pasta)',onclick:()=>{ const c=(S.drives||[]).find(d=>d.id===meta.source.conn); if(c) refreshDrive([c]); else toast('Esta planilha veio de uma conexão do Drive que foi removida.',true); },disabled:S.readOnly}
+        :meta.source?.type==='gsheet'?{icon:'upload',label:'Sincronizar com o Google Sheets',hint:'Busca agora a versão mais nova da planilha',onclick:()=>syncSheet(meta,false),disabled:S.readOnly}
           :{icon:'upload',label:'Atualizar com nova planilha',hint:'Troque os dados ou adicione linhas novas',onclick:updateDialog,disabled:S.readOnly},
         downloads?{icon:'sheet',label:'Baixar em Excel',hint:'Os dados desta planilha num arquivo .xlsx',onclick:exportXlsx}:null,
         {icon:'copy',label:'Copiar os dados',hint:'Para colar em outro programa (formato CSV)',onclick:copyCsv},

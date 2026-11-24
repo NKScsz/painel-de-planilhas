@@ -3,6 +3,7 @@ const S = {
   db:null, uid:null, me:null, mode:'loading', // loading | login | setup | cloud | local
   auth:null, unsubBases:null,
   view:'home', // home | base | perfil | modelo | painel | consultas | sql | tv
+  drives:[], // Google Drive: [{id, mode:'folder'|'files', folder:{id,name}, files:[{id,name}], syncedAt}]
   board:[], // painel geral: [{b: id da planilha, c: id do gráfico}]
   profile:{}, profileDirty:false, unsubProfile:null, authUser:null,
   model:{relationships:[],positions:{}}, rowCache:{},

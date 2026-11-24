@@ -196,3 +196,5 @@ a,.linkish{color:var(--accent)}
   .db-when,.db-kind,.db-act{display:none!important}
   .db-row:hover:not(:disabled){background:transparent}
 }
+.board-head h1{font-size:22px!important;font-weight:600!important;margin:0 0 4px!important}
+.board-head p{color:var(--text-2);max-width:720px}
