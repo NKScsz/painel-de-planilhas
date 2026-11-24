@@ -132,8 +132,8 @@ function homeView() {
     qrow('board', 'Painel geral', 'Gráficos de várias planilhas numa tela só.', () => openBoard()),
     qrow('file', 'Planilhas modelo', 'Vendas, financeiro, estoque, RH e marketing.', () => templatesDialog(null), ro),
     qrow('upload', 'Google Sheets', 'Conecte uma planilha que se atualiza sozinha.', () => sheetDialog(), ro),
-    qrow('model', 'Ligar planilhas', S.bases.length >= 2 ? 'Junte planilhas por uma coluna em comum.' : 'Disponível com 2 planilhas ou mais.', () => openModel(), !S.bases.length, true),
-    qrow('building', 'Consultas', 'CNPJ e CEP com dados públicos.', openConsultas, false, true),
+    qrow('model', 'Ligar planilhas', S.bases.length >= 2 ? 'Junte planilhas por uma coluna em comum.' : 'Disponível com 2 planilhas ou mais.', () => openModel(), !S.bases.length),
+    qrow('building', 'Consultas', 'CNPJ e CEP com dados públicos.', openConsultas),
     qrow('user', 'Meu perfil', 'Nome, empresa, conta e sua marca nos relatórios.', openProfile),
   ];
   const empty = (txt, btn) => el('div', { class: 'db-empty' }, el('p', { text: txt }), btn || null);

@@ -11,13 +11,13 @@ const LS={get:(k,d=null)=>{ try{ const v=localStorage.getItem(k); return v==null
 function applySimple(){
   document.body.classList.toggle('simple',S.simple);
   const b=$('#advNav'); if(!b) return;
-  b.querySelector('.nm').textContent=S.simple?'Ferramentas avançadas':'Modo simples';
-  b.querySelector('.sub').textContent=S.simple?'SQL, ligar planilhas, CNPJ/CEP':'Mostrar só o essencial';
-  b.title=S.simple?'Mostra Consulta SQL, Ligar planilhas, Consultas de CNPJ/CEP e os controles de cada gráfico':'Esconde as ferramentas avançadas';
+  b.querySelector('.nm').textContent=S.simple?'Controles avançados':'Modo simples';
+  b.querySelector('.sub').textContent=S.simple?'Controles extras dos gráficos':'Mostrar só o essencial';
+  b.title=S.simple?'Mostra os controles extras de cada gráfico':'Esconde os controles extras de cada gráfico';
 }
 function setSimple(on){
   S.simple=on; LS.set('modoSimples',on?'1':'0'); applySimple();
-  if (on&&['sql','modelo','consultas'].includes(S.view)) goHome(); else render();
+  render();
   toast(on?'Modo simples: só o essencial aparece. As ferramentas avançadas continuam no menu.':'Ferramentas avançadas ligadas: Consulta SQL, Ligar planilhas, Consultas de CNPJ/CEP e os controles de cada gráfico.',false,5500);
 }
 
