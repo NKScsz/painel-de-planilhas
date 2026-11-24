@@ -48,7 +48,7 @@ function renderData(view,meta){
   view.prepend(helpBar('dados'));
   autoTour('dados');
   const card=el('div',{class:'table-card'}); view.append(card);
-  view.append(el('div',{class:'muted',style:'font-size:12px;margin-top:8px',text:S.readOnly?'':meta.source?.type==='gdrive'?'Esta planilha vem do Google Drive: edite o arquivo lá e toque em Atualizar. Alterações feitas aqui são substituídas na próxima atualização.':meta.source?.type==='gsheet'?'Esta base vem do Google Sheets: edite os dados lá. Alterações feitas aqui são substituídas na próxima sincronização.':'Dica: dê dois cliques numa célula para editar.'}));
+  view.append(el('div',{class:'muted',style:'font-size:12px;margin-top:8px',text:S.readOnly?'':meta.source?.type==='gsheet'?'Esta base vem do Google Sheets: edite os dados lá. Alterações feitas aqui são substituídas na próxima sincronização.':'Dica: dê dois cliques numa célula para editar.'}));
   function drawTable(){
     card.innerHTML='';
     const idx=filteredIdx(meta);

@@ -8,7 +8,6 @@ import { fold } from '../easy/free-ask.ts';
 import { helpBar } from '../easy/help.js';
 import { bulkDelete } from '../features/bulk-delete.js';
 import { openConsultas } from '../features/cnpj-cep.js';
-import { driveDialog, openDrive } from '../features/google-drive.js';
 import { sheetDialog } from '../features/google-sheets.js';
 import { createSample, tourFromHome } from '../features/sample-and-tour.js';
 import { templatesDialog } from '../features/templates.js';
@@ -36,7 +35,6 @@ function whenAgo(t) {
 // tipo e ícone da planilha, pela origem ou pela extensão do arquivo
 function kindOf(b) {
   if (b.source && b.source.type === 'gsheet') return ['Google Sheets', 'table'];
-  if (b.source && b.source.type === 'gdrive') return [b.source.missing ? 'Saiu do Drive' : 'Google Drive', 'drive'];
   const ext = String(b.fileName || '').toLowerCase().split('.').pop();
   if (['xlsx', 'xls', 'xlsm'].includes(ext)) return ['Excel', 'sheet'];
   if (['csv', 'tsv', 'txt'].includes(ext)) return ['CSV', 'sheet'];
@@ -70,7 +68,6 @@ function homeView() {
       el('div', { class: 'db-chips' },
         chip('upload', 'Enviar arquivo', () => pickFile('new'), ro),
         chip('file', 'Modelos', () => templatesDialog(null), ro),
-        chip('drive', 'Google Drive', () => (S.mode === 'cloud' ? driveDialog() : openDrive()), ro),
         chip('table', 'Google Sheets', () => sheetDialog(), ro),
         S.bases.length ? null : chip('chart', 'Dados de exemplo', () => createSample(true), ro)),
       el('button', { class: 'btn primary', disabled: ro, onclick: () => pickFile('new') }, 'Escolher arquivo', icon('upload', 14))));
@@ -134,7 +131,6 @@ function homeView() {
     qrow('pdf', 'Relatório em PDF', last ? 'Baixe o relatório pronto para enviar.' : 'Disponível depois de enviar uma planilha.', async () => { await openBaseTab(last.id, 'graficos'); const m = currentMeta(); if (m && m.id === last.id && S.rows) exportChartsPdf(m); }, !last || !(last.charts || []).length),
     qrow('board', 'Painel geral', 'Gráficos de várias planilhas numa tela só.', () => openBoard()),
     qrow('file', 'Planilhas modelo', 'Vendas, financeiro, estoque, RH e marketing.', () => templatesDialog(null), ro),
-    qrow('drive', 'Google Drive', (S.drives || []).length ? 'Veja as pastas conectadas e atualize.' : 'Conecte uma pasta ou arquivos e atualize com um toque.', openDrive),
     qrow('upload', 'Google Sheets', 'Conecte uma planilha que se atualiza sozinha.', () => sheetDialog(), ro),
     qrow('model', 'Ligar planilhas', S.bases.length >= 2 ? 'Junte planilhas por uma coluna em comum.' : 'Disponível com 2 planilhas ou mais.', () => openModel(), !S.bases.length),
     qrow('building', 'Consultas', 'CNPJ e CEP com dados públicos.', openConsultas),

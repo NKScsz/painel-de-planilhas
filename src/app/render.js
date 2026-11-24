@@ -1,6 +1,5 @@
 import { baseAbbr, currentMeta, openBase, signIn } from './init.js';
 import { boardView } from '../views/board.js';
-import { driveView } from '../features/google-drive.js';
 import { destroyCharts } from '../charts/draw-and-pdf.js';
 import { S } from '../core/state.js';
 import { $, el, nf } from '../core/utils.ts';
@@ -52,7 +51,6 @@ function renderMain(){
   if (S.view==='tv'){ main.append(tvView()); return; }
   if (S.view==='consultas'){ main.append(consultasView()); return; }
   if (S.view==='painel'){ main.append(boardView()); return; }
-  if (S.view==='drive'){ main.append(driveView()); return; }
   if (S.view==='sql'){ main.append(sqlView()); return; }
   const meta=currentMeta();
   if (!meta){ main.append(emptyState()); return; }
@@ -122,8 +120,6 @@ const ICONS={
   tag:'<path d="M2.5 2.5h5.2l5.8 5.8-5.2 5.2-5.8-5.8z"/><circle cx="5.4" cy="5.4" r=".9"/>',
   building:'<rect x="2.5" y="2" width="7" height="12" rx="1"/><path d="M9.5 6h3c.6 0 1 .4 1 1v7h-4M4.8 5h2.4M4.8 8h2.4M4.8 11h2.4"/>',
   home:'<path d="M2.5 7.2 8 2.5l5.5 4.7M4 6v7.5h8V6"/>',
-  folder:'<path d="M1.8 4.2c0-.6.5-1.1 1.1-1.1h3.2l1.5 1.6h5.5c.6 0 1.1.5 1.1 1.1v6.5c0 .6-.5 1.1-1.1 1.1H2.9c-.6 0-1.1-.5-1.1-1.1z"/>',
-  drive:'<path d="M5.8 2.5h4.4l4.3 7.4-2.2 3.6H3.7L1.5 9.9z"/><path d="M5.8 2.5l4.4 7.4h4.3M10.2 2.5 5.9 9.9l-2.2 3.6M1.5 9.9h8.7"/>',
   sliders:'<path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7"/><circle cx="11" cy="4.5" r="1.6"/><circle cx="5" cy="11.5" r="1.6"/>',
   sparkle:'<path d="M8 2.2c.5 3 1.8 4.3 4.8 4.8-3 .5-4.3 1.8-4.8 4.8-.5-3-1.8-4.3-4.8-4.8 3-.5 4.3-1.8 4.8-4.8zM12.8 11v2.6M11.5 12.3h2.6"/>',
   calendar:'<rect x="2" y="3" width="12" height="10.8" rx="1.5"/><path d="M2 6.6h12M5.2 1.8v2.4M10.8 1.8v2.4"/>',
@@ -143,7 +139,7 @@ function tyIcon(t){ const k=t==='number'||t==='date'?t:'text', s=icon('ty-'+k,14
   const w=el('span',{class:'ty',title:{number:'Número',date:'Data',text:'Texto'}[k]}); w.append(s); return w; }
 function renderSidebar(){
   $('#delAllBtn').disabled=S.readOnly||!S.bases.length;
-  $('#profileNav').classList.toggle('active',S.view==='perfil'); $('#homeNav').classList.toggle('active',S.view==='home'); $('#driveNav').classList.toggle('active',S.view==='drive');
+  $('#profileNav').classList.toggle('active',S.view==='perfil'); $('#homeNav').classList.toggle('active',S.view==='home');
   $('#modelNav').classList.toggle('active',S.view==='modelo'); $('#boardNav').classList.toggle('active',S.view==='painel');
   $('#cqNav').classList.toggle('active',S.view==='consultas');
   $('#sqlNav').classList.toggle('active',S.view==='sql');

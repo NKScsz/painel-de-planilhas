@@ -15,36 +15,6 @@ import { nfeTable } from './nfe.ts';
 import { decodeOfx, parseOfx } from './ofx.ts';
 
 /* ============ Upload ============ */
-const SHEET_EXT=['xlsx','xls','xlsm','csv','ods','tsv','txt'];
-// Lê um arquivo (menos XML de nota, que é lido em grupo) e devolve as tabelas.
-// preview=false pula a tela de conferência do PDF/foto (usado na atualização do Google Drive).
-async function fileTables(f,{onMsg=()=>{},preview=true}={}){
-  const ext=f.name.split('.').pop().toLowerCase(), notes=[];
-  if (DOC_EXT.includes(ext)){
-    onMsg(`Abrindo “${f.name}”…`);
-    const res=await readDocument(f,onMsg);
-    if (!res.tables.length){ toast(`Não encontramos texto legível em “${f.name}”.`,true,6000); return {tables:[],notes}; }
-    if (preview){ onMsg('Aguardando sua confirmação…'); if (!await previewDocImport(f,res)) return {tables:[],notes,cancelled:true}; }
-    for (const tb of res.tables) tb.fileName=tb.fileName||f.name;
-    return {tables:res.tables,notes};
-  }
-  if (ext==='ofx'){
-    onMsg(`Lendo o extrato “${f.name}”…`);
-    const r=parseOfx(decodeOfx(await f.arrayBuffer()));
-    if (!r){ toast(`Não encontramos lançamentos em “${f.name}”. Confira se é o extrato em OFX exportado pelo banco.`,true,7000); return {tables:[],notes}; }
-    const tb=tableFromAoa(r.aoa); enrichStatement(tb); categorizeTable(tb);
-    tb.name=`Extrato ${r.banco||'OFX'}${r.conta?` · conta ${String(r.conta).slice(-4)}`:''}`; tb.fileName=f.name;
-    if (r.repetidos) notes.push(`${r.repetidos} lançamentos repetidos no arquivo “${f.name}” foram ignorados.`);
-    return {tables:[tb],notes};
-  }
-  if (SHEET_EXT.includes(ext)){
-    const mg=mergeSheets(await readWorkbook(f),f.name);
-    if (mg.merged) notes.push(`As ${mg.merged} abas de “${f.name}” viraram uma base só (a coluna “${mg.srcCol}” mostra de qual aba veio cada linha).${mg.apart.length?` Ficaram separadas por terem outro formato ou serem de resumo: ${mg.apart.join(', ')}.`:''}`);
-    return {tables:mg.tables,notes};
-  }
-  toast(`Formato não suportado: “${f.name}”. Use planilha, PDF, imagem, XML de nota fiscal ou extrato OFX.`,true,6000);
-  return {tables:[],notes};
-}
 async function handleFiles(files){
   if (!files || !files.length) return;
   if (S.readOnly){ toast('Acesso somente leitura: não é possível enviar planilhas.',true); return; }
@@ -54,10 +24,27 @@ async function handleFiles(files){
     let tables=[], cancelled=0; const mergeNotes=[], xmls=[];
     for (const f of files){
       const ext=f.name.split('.').pop().toLowerCase();
-      if (ext==='xml'){ xmls.push({name:f.name,xml:await f.text()}); continue; } // notas fiscais: juntas viram uma tabela só (lidas depois do laço)
-      const r=await fileTables(f,{onMsg:m=>{ t.textContent=m; }});
-      tables.push(...r.tables); mergeNotes.push(...r.notes); if (r.cancelled) cancelled++;
-      t.textContent='Lendo arquivo…';
+      if (DOC_EXT.includes(ext)){
+        t.textContent=`Abrindo “${f.name}”…`;
+        const res=await readDocument(f,msg=>{ t.textContent=msg; });
+        if (!res.tables.length){ toast(`Não encontramos texto legível em “${f.name}”.`,true,6000); continue; }
+        t.textContent='Aguardando sua confirmação…';
+        if (await previewDocImport(f,res)) tables.push(...res.tables); else cancelled++;
+        t.textContent='Lendo arquivo…';
+      } else if (ext==='xml'){ // notas fiscais: juntas viram uma tabela só (lidas depois do laço)
+        xmls.push({name:f.name,xml:await f.text()});
+      } else if (ext==='ofx'){
+        t.textContent=`Lendo o extrato “${f.name}”…`;
+        const r=parseOfx(decodeOfx(await f.arrayBuffer()));
+        if (!r){ toast(`Não encontramos lançamentos em “${f.name}”. Confira se é o extrato em OFX exportado pelo banco.`,true,7000); continue; }
+        const tb=tableFromAoa(r.aoa); enrichStatement(tb); categorizeTable(tb);
+        tb.name=`Extrato ${r.banco||'OFX'}${r.conta?` · conta ${String(r.conta).slice(-4)}`:''}`; tb.fileName=f.name; tables.push(tb);
+        if (r.repetidos) mergeNotes.push(`${r.repetidos} lançamentos repetidos no arquivo “${f.name}” foram ignorados.`);
+      } else if (['xlsx','xls','xlsm','csv','ods','tsv','txt'].includes(ext)){
+        const mg=mergeSheets(await readWorkbook(f),f.name); tables.push(...mg.tables);
+        if (mg.merged) mergeNotes.push(`As ${mg.merged} abas de “${f.name}” viraram uma base só (a coluna “${mg.srcCol}” mostra de qual aba veio cada linha).${mg.apart.length?` Ficaram separadas por terem outro formato ou serem de resumo: ${mg.apart.join(', ')}.`:''}`);
+      }
+      else toast(`Formato não suportado: “${f.name}”. Use planilha, PDF, imagem, XML de nota fiscal ou extrato OFX.`,true,6000);
     }
     if (xmls.length){
       t.textContent=`Lendo ${xmls.length===1?'a nota fiscal':`${xmls.length} notas fiscais`}…`;
@@ -131,4 +118,4 @@ function bindDrop(node){
 var lastScrollKey='';
 function resetScroll(){ const k=`${S.view}|${S.currentId}|${S.tab}`; if(k!==lastScrollKey){ lastScrollKey=k; const m=$('#main'); if(m) m.scrollTop=0; } }
 
-export { SHEET_EXT, bindDrop, fileTables, handleFiles, lastScrollKey, pickFile, resetScroll };
+export { bindDrop, handleFiles, lastScrollKey, pickFile, resetScroll };
