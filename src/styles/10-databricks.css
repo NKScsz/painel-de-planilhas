@@ -16,7 +16,7 @@
   --on-accent:#0b1217; --nav-hover:rgba(232,236,240,.07); --hl:rgba(232,236,240,.05);
   --bar-neutral:#3e4c57;
   --good:#3ba776; --warn:#de7921; --danger:#e65b77; --danger-weak:#2e1b21;
-  --new-bg:rgba(255,73,73,.09); --new-bg-hover:rgba(255,73,73,.15); --new-ic:#ff5f46;
+  --new-bg:rgba(66,153,224,.2); --new-bg-hover:rgba(66,153,224,.3); --new-ic:#6db0e8;
   --banner-bg:#2d201c; --banner-border:#5a3826;
   --r:4px; --r-lg:8px;
   --e2:0 8px 24px -8px rgba(0,0,0,.55); --e3:0 18px 48px -12px rgba(0,0,0,.65);
@@ -29,7 +29,7 @@
   --on-accent:#ffffff; --nav-hover:rgba(17,23,28,.06); --hl:rgba(17,23,28,.03);
   --bar-neutral:#c0cdd8;
   --good:#277c43; --warn:#be501e; --danger:#c82d4c; --danger-weak:#fdebee;
-  --new-bg:rgba(255,54,33,.08); --new-bg-hover:rgba(255,54,33,.13); --new-ic:#e5352b;
+  --new-bg:rgba(34,114,180,.12); --new-bg-hover:rgba(34,114,180,.2); --new-ic:#2272b4;
   --banner-bg:#fcf2ea; --banner-border:#f0c4a0;
   --e2:0 8px 24px -10px rgba(17,23,28,.18); --e3:0 18px 48px -14px rgba(17,23,28,.25);
 }
