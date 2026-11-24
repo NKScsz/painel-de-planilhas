@@ -4,6 +4,7 @@ import { exportChartsPdf } from '../charts/draw-and-pdf.js';
 import { S } from '../core/state.js';
 import { el, fmtWhen, nf } from '../core/utils.ts';
 import { checklist } from '../easy/checklist.js';
+import { baseEntries, sheetLabel } from '../core/groups.js';
 import { fold } from '../easy/free-ask.ts';
 import { helpBar } from '../easy/help.js';
 import { bulkDelete } from '../features/bulk-delete.js';
@@ -75,7 +76,8 @@ function homeView() {
   const types = el('p', { class: 'db-types', text: 'Aceita Excel, CSV e ODS, extrato em PDF ou OFX, nota fiscal em XML e foto ou print de tabela.' });
 
   // abas em pílula
-  const withCharts = S.bases.filter(b => (b.charts || []).length);
+  const entries = baseEntries(); // abas de um mesmo arquivo = uma linha só
+  const withCharts = entries.filter(g => g.members.some(b => (b.charts || []).length));
   const tabs = [['recentes', 'Recentes', 'clock'], ['graficos', 'Com gráficos', 'chart'], ['atalhos', 'Atalhos', 'sparkle']];
   if (!homeTab) homeTab = S.bases.length ? 'recentes' : 'atalhos';
   const pills = el('div', { class: 'db-pills', role: 'tablist', 'aria-label': 'O que mostrar' });
@@ -89,7 +91,7 @@ function homeView() {
   const allCk = el('input', { type: 'checkbox', title: 'Selecionar todas', 'aria-label': 'Selecionar todas as planilhas', disabled: ro });
   const sync = () => {
     allCk.checked = sel.size > 0 && sel.size === S.bases.length; allCk.indeterminate = sel.size > 0 && sel.size < S.bases.length;
-    for (const c of cks) { c.checked = sel.has(c._id); c.closest('.db-row').classList.toggle('sel', c.checked); }
+    for (const c of cks) { const all = c._ids.every(id => sel.has(id)), some = c._ids.some(id => sel.has(id)); c.checked = all; c.indeterminate = some && !all; c.closest('.db-row').classList.toggle('sel', all); }
     list.classList.toggle('selecting', sel.size > 0);
     bar.innerHTML = ''; bar.classList.toggle('on', sel.size > 0);
     if (sel.size) bar.append(el('b', { text: `${sel.size} ${sel.size === 1 ? 'planilha selecionada' : 'planilhas selecionadas'}` }), el('span', { class: 'spacer' }),
@@ -98,22 +100,24 @@ function homeView() {
   };
   allCk.onchange = () => { if (allCk.checked) S.bases.forEach(b => sel.add(b.id)); else sel.clear(); sync(); };
 
-  const baseRow = b => {
-    const [kind, ic] = kindOf(b), nCharts = (b.charts || []).length, ago = whenAgo(b.updatedAt);
-    const ck = el('input', { type: 'checkbox', class: 'db-ck', 'aria-label': `Selecionar “${b.name}”`, disabled: ro, onclick: e => e.stopPropagation(), onkeydown: e => e.stopPropagation(), onchange: () => { if (ck.checked) sel.add(b.id); else sel.delete(b.id); sync(); } });
-    ck._id = b.id; cks.push(ck);
-    const row = el('div', { class: 'db-row', role: 'listitem', tabindex: '0', title: `Abrir “${b.name}”`,
+  const baseRow = g => {
+    const b = g.first, ms = g.members, multi = ms.length > 1;
+    const [kind, ic] = kindOf(b), nCharts = ms.reduce((s, m) => s + (m.charts || []).length, 0), nRows = ms.reduce((s, m) => s + (m.rowCount || 0), 0);
+    const upd = Math.max(...ms.map(m => m.updatedAt || 0)) || b.updatedAt, ago = whenAgo(upd);
+    const ck = el('input', { type: 'checkbox', class: 'db-ck', 'aria-label': `Selecionar “${g.name}”`, disabled: ro, onclick: e => e.stopPropagation(), onkeydown: e => e.stopPropagation(), onchange: () => { for (const m of ms) { if (ck.checked) sel.add(m.id); else sel.delete(m.id); } sync(); } });
+    ck._ids = ms.map(m => m.id); cks.push(ck);
+    const row = el('div', { class: 'db-row', role: 'listitem', tabindex: '0', title: `Abrir “${g.name}”`,
       onclick: () => openBaseTab(b.id, 'dados'), onkeydown: e => { if (e.key === 'Enter') openBaseTab(b.id, 'dados'); } },
     ck,
     el('span', { class: 'db-ic' }, icon(ic, 16)),
-    el('div', { class: 'db-name' }, el('b', { text: b.name }),
-      el('span', { text: [b.fileName, `${nf.format(b.rowCount || 0)} linhas`, nCharts ? `${nCharts} ${nCharts === 1 ? 'gráfico' : 'gráficos'}` : ''].filter(Boolean).join(' · ') })),
-    el('span', { class: 'db-when', title: fmtWhen(b.updatedAt), text: ago ? `Atualizada • ${ago}` : '' }),
+    el('div', { class: 'db-name' }, el('b', { text: g.name }),
+      el('span', { text: [b.fileName, multi ? `${ms.length} abas: ${ms.map(sheetLabel).join(', ')}` : '', `${nf.format(nRows)} linhas`, nCharts ? `${nCharts} ${nCharts === 1 ? 'gráfico' : 'gráficos'}` : ''].filter(Boolean).join(' · ') })),
+    el('span', { class: 'db-when', title: fmtWhen(upd), text: ago ? `Atualizada • ${ago}` : '' }),
     el('span', { class: 'db-kind', text: kind }),
     el('div', { class: 'db-act' },
       el('button', { class: 'btn sm', onclick: e => { e.stopPropagation(); openBaseTab(b.id, 'dados'); } }, 'Dados'),
       el('button', { class: 'btn sm', onclick: e => { e.stopPropagation(); openBaseTab(b.id, 'graficos'); } }, 'Gráficos')));
-    row._find = fold(`${b.name} ${b.fileName || ''} ${kind}`);
+    row._find = fold(`${g.name} ${ms.map(m => m.name).join(' ')} ${b.fileName || ''} ${kind}`);
     return row;
   };
   // atalhos com a mesma cara das linhas da lista
@@ -148,7 +152,7 @@ function homeView() {
     list.innerHTML = ''; toolbar.innerHTML = ''; cks = [];
     if (homeTab === 'atalhos') list.append(...shortcuts());
     else {
-      const src = homeTab === 'graficos' ? withCharts : S.bases;
+      const src = homeTab === 'graficos' ? withCharts : entries;
       if (!src.length) list.append(homeTab === 'graficos' && S.bases.length
         ? empty('Nenhuma planilha com gráficos ainda. Abra uma planilha e toque em “Refazer gráficos”.')
         : empty('Você ainda não tem planilhas. Envie um arquivo ou experimente com dados de exemplo.',
@@ -156,7 +160,7 @@ function homeView() {
       else {
         list.append(...src.map(baseRow));
         toolbar.append(
-          el('label', { class: 'db-all' }, allCk, el('span', { text: `${nf.format(S.bases.length)} ${S.bases.length === 1 ? 'planilha' : 'planilhas'} · ${nf.format(rowsN)} linhas · ${nf.format(chartsN)} gráficos` })),
+          el('label', { class: 'db-all' }, allCk, el('span', { text: `${nf.format(entries.length)} ${entries.length === 1 ? 'planilha' : 'planilhas'} · ${nf.format(rowsN)} linhas · ${nf.format(chartsN)} gráficos` })),
           el('span', { class: 'spacer' }),
           ro ? null : el('button', { class: 'btn sm danger', onclick: () => bulkDelete(S.bases.map(b => b.id)) }, 'Excluir todas'));
       }
@@ -167,7 +171,7 @@ function homeView() {
   search.addEventListener('input', () => { if (homeTab === 'graficos' && search.value) { homeTab = 'recentes'; fill(); } else filter(); });
   search.addEventListener('keydown', e => { if (e.key === 'Enter') { const r = [...list.querySelectorAll('.db-row')].find(x => !x.hidden); if (r) r.click(); } });
   for (const [k, label, ic] of tabs) {
-    const n = k === 'recentes' ? S.bases.length : k === 'graficos' ? withCharts.length : 0;
+    const n = k === 'recentes' ? entries.length : k === 'graficos' ? withCharts.length : 0;
     pills.append(el('button', { class: 'db-pill', type: 'button', role: 'tab', 'data-k': k, onclick: () => { homeTab = k; fill(); } }, icon(ic, 14), label, n ? el('span', { class: 'db-n', text: String(n) }) : null));
   }
 

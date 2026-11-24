@@ -1,4 +1,5 @@
 import { baseAbbr, currentMeta, openBase, signIn } from './init.js';
+import { baseEntries, sheetLabel } from '../core/groups.js';
 import { boardView } from '../views/board.js';
 import { destroyCharts } from '../charts/draw-and-pdf.js';
 import { S } from '../core/state.js';
@@ -145,10 +146,13 @@ function renderSidebar(){
   $('#sqlNav').classList.toggle('active',S.view==='sql');
   const box=$('#bases'); box.innerHTML='';
   if (!S.bases.length){ box.append(el('div',{class:'muted',style:'padding:8px 10px;font-size:13px',text:S.basesLoaded?'Nenhuma planilha ainda. Toque em ＋ para enviar a primeira.':'Carregando…'})); return; }
-  for (const b of S.bases){
-    box.append(el('button',{class:'base-item'+(b.id===S.currentId&&S.view==='base'?' active':''),onclick:()=>openBase(b.id),title:b.name},
-      el('div',{class:'ic'},icon('sheet'),el('span',{class:'ab',text:baseAbbr(b.name)})),
-      el('div',{class:'txt'},el('div',{class:'nm',text:b.name,title:b.name}),el('div',{class:'sub',text:`${nf.format(b.rowCount||0)} linhas · ${b.columns?.length||0} colunas`}))));
+  // abas de um mesmo arquivo aparecem como um item só
+  for (const g of baseEntries()){
+    const on=S.view==='base'&&g.members.some(m=>m.id===S.currentId), multi=g.members.length>1;
+    const rows=g.members.reduce((s,m)=>s+(m.rowCount||0),0);
+    box.append(el('button',{class:'base-item'+(on?' active':''),onclick:()=>openBase(on?S.currentId:g.first.id),title:multi?`${g.name} (${g.members.length} abas: ${g.members.map(sheetLabel).join(', ')})`:g.name},
+      el('div',{class:'ic'},icon(multi?'layout':'sheet'),el('span',{class:'ab',text:baseAbbr(g.name)})),
+      el('div',{class:'txt'},el('div',{class:'nm',text:g.name,title:g.name}),el('div',{class:'sub',text:multi?`${g.members.length} abas · ${nf.format(rows)} linhas`:`${nf.format(g.first.rowCount||0)} linhas · ${g.first.columns?.length||0} colunas`}))));
   }
 }
 function googleLogo(){

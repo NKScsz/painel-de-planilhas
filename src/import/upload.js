@@ -11,6 +11,7 @@ import { DOC_EXT, previewDocImport, readDocument } from './pdf-image.js';
 import { mergeSheets, readWorkbook, tableFromAoa } from './spreadsheet.js';
 import { enrichStatement } from './pdf-image.js';
 import { categorizeTable } from '../features/categorize.js';
+import { mergedLabel } from '../core/groups.js';
 import { nfeTable } from './nfe.ts';
 import { decodeOfx, parseOfx } from './ofx.ts';
 
@@ -41,8 +42,11 @@ async function handleFiles(files){
         tb.name=`Extrato ${r.banco||'OFX'}${r.conta?` · conta ${String(r.conta).slice(-4)}`:''}`; tb.fileName=f.name; tables.push(tb);
         if (r.repetidos) mergeNotes.push(`${r.repetidos} lançamentos repetidos no arquivo “${f.name}” foram ignorados.`);
       } else if (['xlsx','xls','xlsm','csv','ods','tsv','txt'].includes(ext)){
-        const mg=mergeSheets(await readWorkbook(f),f.name); tables.push(...mg.tables);
-        if (mg.merged) mergeNotes.push(`As ${mg.merged} abas de “${f.name}” viraram uma base só (a coluna “${mg.srcCol}” mostra de qual aba veio cada linha).${mg.apart.length?` Ficaram separadas por terem outro formato ou serem de resumo: ${mg.apart.join(', ')}.`:''}`);
+        const mg=mergeSheets(await readWorkbook(f),f.name);
+        // abas de formatos diferentes: uma planilha só, com as abas para escolher lá dentro
+        if (mg.tables.length>1){ const g={id:uid8(),name:f.name.replace(/\.[^.]+$/,'')}; for (const tb of mg.tables){ tb.group=g; tb.sheetLabel=tb.mergedSheets?mergedLabel(tb.mergedSheets):(tb.sheet||tb.name); } }
+        tables.push(...mg.tables);
+        if (mg.merged) mergeNotes.push(`As ${mg.merged} abas de “${f.name}” com as mesmas colunas viraram uma tabela só (a coluna “${mg.srcCol}” mostra de qual aba veio cada linha).${mg.apart.length?` ${mg.apart.join(', ')} ${mg.apart.length===1?'tem':'têm'} outro formato e ficou como aba separada dentro da mesma planilha.`:''}`);
       }
       else toast(`Formato não suportado: “${f.name}”. Use planilha, PDF, imagem, XML de nota fiscal ou extrato OFX.`,true,6000);
     }
@@ -84,7 +88,7 @@ async function handleFiles(files){
     }
     let firstId=null;
     for (const tb of tables){
-      const meta={id:uid8(),name:tb.name,fileName:tb.fileName,columns:tb.columns,createdAt:Date.now(),charts:autoCharts(tb.columns,tb.rows),cleanLog:cleanInfo(tb)};
+      const meta={id:uid8(),name:tb.name,fileName:tb.fileName,columns:tb.columns,createdAt:Date.now(),charts:autoCharts(tb.columns,tb.rows),cleanLog:cleanInfo(tb),...(tb.group?{group:tb.group,sheetLabel:tb.sheetLabel}:{})};
       t.textContent=`Salvando “${tb.name}” (${nf.format(tb.rows.length)} linhas)…`;
       await saveBase(meta,tb.rows);
       firstId=firstId||meta.id;

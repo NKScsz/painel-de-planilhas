@@ -1,9 +1,10 @@
-import { downloads, fillAvatar, profileName, renderUser, signOut } from '../app/init.js';
+import { downloads, fillAvatar, openBaseTab, profileName, renderUser, signOut } from '../app/init.js';
 import { icon, render } from '../app/render.js';
 import { exportChartsPdf } from '../charts/draw-and-pdf.js';
 import { S } from '../core/state.js';
 import { handleWriteError, saveMeta } from '../core/storage.js';
-import { el, fmtWhen, nf, toast } from '../core/utils.ts';
+import { SEP, groupMembers, groupName, sheetLabel } from '../core/groups.js';
+import { el, fmtWhen, nf, toast, uid8 } from '../core/utils.ts';
 import { popMenu } from '../easy/simple-mode.js';
 import { brandCard } from '../features/brand.js';
 import { bulkDelete } from '../features/bulk-delete.js';
@@ -97,17 +98,31 @@ function emptyState(){
       el('div',{},el('b',{text:'Gráficos automáticos'}),'Indicadores e gráficos montados a partir das colunas'),
       el('div',{},el('b',{text:'Salvo no seu login'}),'Abra em qualquer computador ou celular'))));
 }
+// renomear uma planilha com abas troca o nome de todas (cada aba vira "Nome — Aba")
+async function renameGroup(gm,v){
+  const gid=(gm[0].group&&gm[0].group.id)||uid8();
+  try{ for (const m of gm){ const c=structuredClone(m), label=sheetLabel(m); c.group={id:gid,name:v}; c.sheetLabel=label; c.name=`${v}${SEP}${label}`; await saveMeta(c); const i=S.bases.findIndex(b=>b.id===c.id); if(i>=0) S.bases[i]=c; } }
+  catch(e){ handleWriteError(e); }
+  render();
+}
+// abas da planilha (quando o arquivo tinha abas de formatos diferentes)
+function sheetTabs(meta,gm){
+  return el('div',{class:'sheet-tabs',role:'tablist','aria-label':'Abas da planilha'},gm.map(m=>{ const on=m.id===meta.id;
+    return el('button',{class:'sheet-tab'+(on?' on':''),type:'button',role:'tab','aria-selected':String(on),title:`${sheetLabel(m)}: ${nf.format(m.rowCount||0)} linhas`,onclick:()=>{ if(!on) openBaseTab(m.id,S.tab); }},
+      icon('sheet',14),el('span',{text:sheetLabel(m)}),el('span',{class:'n',text:nf.format(m.rowCount||0)})); }));
+}
 function pageHead(meta){
+  const gm=groupMembers(meta), gName=gm?groupName(meta):meta.name;
   // nome em várias linhas: o título aparece inteiro, mesmo quando é longo
-  const ti=el('textarea',{class:'title-input',rows:1,disabled:S.readOnly,'aria-label':'Nome da planilha',title:meta.name,spellcheck:'false'});
-  ti.value=meta.name; if(meta.name.length>40) ti.classList.add('long');
+  const ti=el('textarea',{class:'title-input',rows:1,disabled:S.readOnly,'aria-label':'Nome da planilha',title:gName,spellcheck:'false'});
+  ti.value=gName; if(gName.length>40) ti.classList.add('long');
   const fit=()=>{ ti.style.height='auto'; ti.style.height=ti.scrollHeight+'px'; };
   ti.addEventListener('input',()=>{ ti.value=ti.value.replace(/\n/g,' '); fit(); });
   requestAnimationFrame(fit); addEventListener('resize',fit,{passive:true});
-  ti.addEventListener('keydown',e=>{if(e.key==='Enter'){ e.preventDefault(); ti.blur(); } if(e.key==='Escape'){ti.value=meta.name;fit();ti.blur();}});
-  ti.addEventListener('change',async()=>{ const v=ti.value.trim(); if(!v||v===meta.name){ti.value=meta.name;return;} const m=structuredClone(meta); m.name=v; try{await saveMeta(m);}catch(e){handleWriteError(e);} });
+  ti.addEventListener('keydown',e=>{if(e.key==='Enter'){ e.preventDefault(); ti.blur(); } if(e.key==='Escape'){ti.value=gName;fit();ti.blur();}});
+  ti.addEventListener('change',async()=>{ const v=ti.value.trim(); if(!v||v===gName){ti.value=gName;return;} if(gm){ await renameGroup(gm,v); return; } const m=structuredClone(meta); m.name=v; try{await saveMeta(m);}catch(e){handleWriteError(e);} });
   return el('div',{class:'page-head'},
-    el('div',{class:'title-wrap'},ti,el('div',{class:'meta-line',text:`${nf.format(S.rows?S.rows.length:meta.rowCount||0)} linhas · ${meta.columns.length} colunas · ${meta.source?.type==='gsheet'?`Google Sheets · sincronizado em ${fmtWhen(meta.source.syncedAt)}`:`arquivo ${meta.fileName||'—'} · atualizado em ${fmtWhen(meta.updatedAt)}`}`}),
+    el('div',{class:'title-wrap'},ti,gm?sheetTabs(meta,gm):null,el('div',{class:'meta-line',text:`${nf.format(S.rows?S.rows.length:meta.rowCount||0)} linhas · ${meta.columns.length} colunas · ${meta.source?.type==='gsheet'?`Google Sheets · sincronizado em ${fmtWhen(meta.source.syncedAt)}`:`arquivo ${meta.fileName||'—'} · atualizado em ${fmtWhen(meta.updatedAt)}`}`}),
       meta.share?.token?el('button',{class:'share-pill',onclick:()=>shareDialog(meta),title:'Este painel tem um link público ativo'},el('span',{class:'dot ok'}),'Link de compartilhamento ativo'):null),
     el('div',{class:'head-actions'},
       el('button',{class:'btn primary','data-tour':'pdf',onclick:()=>exportChartsPdf(meta),disabled:!S.rows||!(meta.charts||[]).length,title:'Baixa um relatório em PDF com os gráficos (respeitando os filtros da aba Gráficos) e uma explicação de cada um'},icon('pdf'),'Baixar PDF'),
@@ -119,7 +134,9 @@ function pageHead(meta){
         downloads?{icon:'sheet',label:'Baixar em Excel',hint:'Os dados desta planilha num arquivo .xlsx',onclick:exportXlsx}:null,
         {icon:'copy',label:'Copiar os dados',hint:'Para colar em outro programa (formato CSV)',onclick:copyCsv},
         {sep:true},
-        {icon:'trash',label:'Excluir esta planilha',hint:'Apaga a planilha, os gráficos e os relatórios dela',danger:true,onclick:()=>removeBase(meta),disabled:S.readOnly}],'Mais opções')},icon('more'),'Mais')));
+        ...(gm?[{icon:'trash',label:`Excluir só a aba “${sheetLabel(meta)}”`,hint:'As outras abas continuam',danger:true,onclick:()=>removeBase(meta),disabled:S.readOnly},
+          {icon:'trash',label:`Excluir a planilha inteira (${gm.length} abas)`,hint:'Apaga todas as abas, gráficos e relatórios',danger:true,onclick:()=>bulkDelete(gm.map(m=>m.id)),disabled:S.readOnly}]
+        :[{icon:'trash',label:'Excluir esta planilha',hint:'Apaga a planilha, os gráficos e os relatórios dela',danger:true,onclick:()=>removeBase(meta),disabled:S.readOnly}])],'Mais opções')},icon('more'),'Mais')));
 }
 
 export { PROFILE_FIELDS, emptyState, pageHead, profileView };

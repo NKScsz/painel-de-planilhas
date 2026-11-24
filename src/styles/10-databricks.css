@@ -196,3 +196,12 @@ a,.linkish{color:var(--accent)}
   .db-when,.db-kind,.db-act{display:none!important}
   .db-row:hover:not(:disabled){background:transparent}
 }
+
+/* abas de uma planilha que veio de um Excel com abas diferentes */
+.sheet-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.sheet-tab{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--border-strong);border-radius:16px;background:transparent;color:var(--text);font:inherit;font-size:13px;cursor:pointer;transition:background-color .15s,border-color .15s}
+.sheet-tab:hover{background:var(--nav-hover)}
+.sheet-tab svg{color:var(--text-2)}
+.sheet-tab .n{font-size:11px;line-height:16px;padding:0 6px;border-radius:8px;background:var(--surface-3);color:var(--text-2)}
+.sheet-tab.on{background:var(--accent-weak);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--text-strong);font-weight:600}
+.sheet-tab.on svg{color:var(--accent)}
