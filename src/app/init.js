@@ -43,7 +43,7 @@ async function init(){
     if (S.unsubBases){ S.unsubBases(); S.unsubBases=null; }
     if (S.unsubProfile){ S.unsubProfile(); S.unsubProfile=null; }
     clearTimeout(basesTimer);
-    Object.assign(S,{bases:[],basesLoaded:false,currentId:null,rows:null,dirty:false,readOnly:false,view:'home',profile:{},profileDirty:false,authUser:user||null,model:{relationships:[],positions:{}},rowCache:{},queries:[]});
+    Object.assign(S,{board:[],bases:[],basesLoaded:false,currentId:null,rows:null,dirty:false,readOnly:false,view:'home',profile:{},profileDirty:false,authUser:user||null,model:{relationships:[],positions:{}},rowCache:{},queries:[]});
     if (S.sql&&S.sql.db){ try{ S.sql.db.close(); }catch(e){} } S.sql=null; // outra conta: banco SQL novo
     if (user){
       S.uid=user.uid; S.mode='cloud';
@@ -54,6 +54,9 @@ async function init(){
       S.unsubProfile=S.db.doc(`data/users/${S.uid}/app`).onSnapshot(d=>{
         const data=(d.exists&&d.data())||{};
         S.profile=data.profile||{};
+        // painel geral: só redesenha se a lista mudou e a pessoa está nele
+        const bd=Array.isArray(data.board)?data.board:[]; const bChanged=JSON.stringify(bd)!==JSON.stringify(S.board||[]); S.board=bd;
+        if (bChanged&&S.view==='painel') render();
         const qs=Array.isArray(data.queries)?data.queries:[]; const qChanged=JSON.stringify(qs)!==JSON.stringify(S.queries||[]); S.queries=qs;
         if (qChanged&&S.view==='sql'&&!S.sql?.busy) render();
         renderUser();

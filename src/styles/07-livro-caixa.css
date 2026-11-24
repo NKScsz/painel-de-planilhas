@@ -14,7 +14,7 @@
   --border:rgba(237,237,237,.08); --border-strong:rgba(237,237,237,.13); --line:rgba(237,237,237,.08); --grid:#232325;
   --text:#dcdcde; --text-strong:#ededed; --text-2:#a1a1a6; --text-3:#85858b;
   --accent:#4a7dff; --accent-strong:#3563e0; --accent-hover:#2f5bd6; --accent-weak:#1b2236; --accent-ring:rgba(74,125,255,.35);
-  --bar-neutral:#4a4a50;
+  --bar-neutral:#4a4a50; --line-hover:rgba(237,237,237,.2); --hl:rgba(255,255,255,.06);
   --good:#4cc38a; --warn:#e2a336; --danger:#e5484d; --danger-weak:#2a1718;
   --r:8px; --r-lg:12px;
   --e1:none;
@@ -52,7 +52,7 @@ aside{background:var(--sidebar);border-right:1px solid var(--border)}
 
 /* botões: cor sólida; o principal tem só um realce fino no topo */
 .btn{background:var(--surface-2);color:var(--text-strong);border:1px solid var(--border-strong);box-shadow:none;font-weight:500;transition:background-color .15s var(--ease),border-color .15s var(--ease),transform .12s var(--ease)}
-.btn:hover:not(:disabled){background:var(--surface-3);border-color:rgba(237,237,237,.18)}
+.btn:hover:not(:disabled){background:var(--surface-3);border-color:var(--line-hover)}
 .btn:active:not(:disabled){transform:scale(.98)}
 .btn.primary{background:var(--accent-strong);border-color:transparent;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
 .btn.primary:hover:not(:disabled){background:var(--accent-hover);border-color:transparent}
@@ -112,10 +112,10 @@ input:focus,select:focus,textarea:focus{outline:0!important;border-color:var(--a
 /* resumo, perguntas e período */
 .easy-sum{border:1px solid var(--border)}
 .ask-chip{background:transparent;border-color:var(--border-strong);color:var(--text);transition:border-color .15s var(--ease),background-color .15s var(--ease)}
-.ask-chip:hover{border-color:rgba(237,237,237,.22);background:var(--surface)}
+.ask-chip:hover{border-color:var(--line-hover);background:var(--surface)}
 .qp{background:transparent;border-color:var(--border-strong);color:var(--text-2)}
 .qp:hover{background:var(--surface-2);color:var(--text-strong)}
-.qp.on{background:var(--surface-3);border-color:rgba(237,237,237,.22);color:var(--text-strong);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.qp.on{background:var(--surface-3);border-color:var(--line-hover);color:var(--text-strong);box-shadow:inset 0 1px 0 var(--hl)}
 .chip{border-color:var(--border-strong);color:var(--text-2)}
 .filter-chip{background:var(--surface-2);border:1px solid var(--border-strong);color:var(--text-strong)}
 
@@ -141,7 +141,7 @@ table.data tbody tr:hover td{background:var(--surface-2)}
 .banner.warn{background:var(--surface);border-color:rgba(226,163,54,.35);color:var(--text)}
 .dirtybar{background:var(--surface-2);border:1px solid var(--border-strong)}
 .sug,.type-opt,.choice{background:var(--surface-2);border-color:var(--border)}
-.sug:hover,.type-opt:hover:not(:disabled),.choice:hover{border-color:rgba(237,237,237,.22);background:var(--surface-3)}
+.sug:hover,.type-opt:hover:not(:disabled),.choice:hover{border-color:var(--line-hover);background:var(--surface-3)}
 .sug.sel,.type-opt.sel{border-color:var(--accent);background:var(--surface-3)}
 
 /* primeiros passos */

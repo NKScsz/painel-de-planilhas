@@ -1,4 +1,6 @@
 import { currentMeta, downloads, profileName } from '../app/init.js';
+import { imageButton } from '../features/chart-share.js';
+import { pinButton } from '../views/board.js';
 import { icon, render } from '../app/render.js';
 import { isTimeCol } from './auto-charts.js';
 import { HTML_TYPES, extraChartConfig, htmlChart, htmlChartImage, ufOf } from './extra-types.js';
@@ -105,7 +107,7 @@ function chartImage(spec,res,yLabel,th={}){
   } else {
     const fc=line&&spec.forecast?forecastOf(res):null;
     const sets=[line
-      ?{label:yLabel||'Valor',data:fc?[...res.values,...Array(fc.labels.length-res.values.length).fill(null)]:res.values,backgroundColor:withAlpha(ACCENT[mode],.14),borderColor:ACCENT[mode],borderWidth:2.5,pointRadius:res.labels.length>40?0:3.5,pointBackgroundColor:seriesColor(spec,mode),tension:.3,fill:true}
+      ?{label:yLabel||'Valor',data:fc?[...res.values,...Array(fc.labels.length-res.values.length).fill(null)]:res.values,backgroundColor:withAlpha(ACCENT[mode],.14),borderColor:ACCENT[mode],borderWidth:2.5,pointRadius:res.labels.length>40?0:3.5,pointBackgroundColor:ACCENT[mode],tension:.3,fill:true}
       :{data:res.values,backgroundColor:barColors(res,mode),borderWidth:0,borderRadius:5,borderSkipped:'start',maxBarThickness:46}];
     if (fc) sets.push({label:'Tendência (estimativa)',data:fc.trend,borderColor:t2,backgroundColor:t2,borderDash:[7,6],borderWidth:2,pointRadius:0,fill:false,tension:0,spanGaps:true});
     ch=new Chart(cv,{
@@ -321,6 +323,8 @@ function chartCard(meta,spec,rows){
       spec.filter?el('button',{class:'filter-chip',title:S.readOnly?'':'Remover este filtro do gráfico',disabled:S.readOnly,onclick:()=>{ const m=structuredClone(meta); const c=m.charts.find(c=>c.id===spec.id); delete c.filter; delete c.title; delete c.why; persistCharts(m); }},`Só ${spec.filter.col}: ${spec.filter.val}`,S.readOnly?'':' ×'):null),
     S.readOnly?null:el('span',{class:'drag-h',title:'Arraste para mudar a ordem',draggable:'true',ondragstart:e=>{ dragChartId=spec.id; e.dataTransfer.effectAllowed='move'; try{ e.dataTransfer.setDragImage(card,20,20); }catch(x){} card.classList.add('dragging'); },ondragend:()=>{ dragChartId=null; card.classList.remove('dragging'); }},'⠿'),
     S.readOnly?null:el('button',{class:'icon-btn',title:spec.wide?'Deixar no tamanho normal':'Ocupar a largura toda',onclick:()=>{ const m=structuredClone(meta); m.columns=m.columns.filter(c=>!c.virtual); const c=m.charts.find(c=>c.id===spec.id); c.wide=!c.wide; persistCharts(m); }},icon(spec.wide?'shrink':'expand')),
+    imageButton(meta,spec,()=>res),
+    S.readOnly||S.mode==='share'?null:pinButton(meta,spec),
     el('button',{class:'icon-btn',title:'Ver como tabela',onclick:()=>{tableMode.v=!tableMode.v;draw();}},icon('table')),
     S.readOnly?null:el('button',{class:'icon-btn edit-toggle simple-only',title:'Mudar este gráfico (tipo, o que mostrar, o que somar)','aria-label':'Mudar este gráfico',onclick:e=>{ const on=card.classList.toggle('editing'); e.currentTarget.classList.toggle('on',on); e.currentTarget.setAttribute('aria-pressed',String(on)); }},icon('edit')),
     S.readOnly?null:el('button',{class:'icon-btn',title:'Remover gráfico','aria-label':'Remover gráfico',onclick:()=>{ const before=structuredClone(currentMeta().charts||[]), m=structuredClone(meta); m.charts=m.charts.filter(c=>c.id!==spec.id); persistCharts(m); undoToast('Gráfico removido.',()=>{ const cur=structuredClone(currentMeta()); cur.charts=before; persistCharts(cur); }); }},icon('trash')));
@@ -376,7 +380,8 @@ function chartCard(meta,spec,rows){
 // paleta categórica validada (8 cores, versões para fundo claro e escuro)
 const PIE_COLORS={light:['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#6250d6','#e34948'],dark:['#3987e5','#d95926','#199e70','#c98500','#d55181','#008300','#9085e9','#e66767']};
 const OTHER_COLOR={light:'#a3a29c',dark:'#6b6a64'};
-const isDark=()=>true; // tema escuro único: gráficos usam a paleta validada para fundo escuro
+// tema da página (claro ou escuro): os gráficos usam a versão da paleta validada para aquele fundo
+const isDark=()=>document.documentElement.dataset.theme!=='light';
 
 // a cor acompanha a categoria (não a posição): "Bruno" tem a mesma cor em todos os gráficos.
 // Dentro de um mesmo gráfico, duas categorias nunca repetem cor enquanto houver cor livre.
@@ -419,13 +424,15 @@ function pieConfig(res,{dark,surf,t2,fontSize}){
 const crosshair={id:'crosshair',afterDatasetsDraw(ch){
   const a=ch.tooltip&&ch.tooltip.getActiveElements&&ch.tooltip.getActiveElements(); if(!a||!a.length) return;
   const x=a[0].element.x, {top,bottom}=ch.chartArea, c=ch.ctx;
-  c.save(); c.strokeStyle='rgba(209,212,220,.35)'; c.setLineDash([4,4]); c.lineWidth=1; c.beginPath(); c.moveTo(x,top); c.lineTo(x,bottom); c.stroke(); c.restore();
+  c.save(); c.strokeStyle=isDark()?'rgba(209,212,220,.35)':'rgba(40,40,48,.3)'; c.setLineDash([4,4]); c.lineWidth=1; c.beginPath(); c.moveTo(x,top); c.lineTo(x,bottom); c.stroke(); c.restore();
 }};
 // opts.onPick(label): clique numa barra/fatia (usado para filtrar o painel)
 function makeChart(cv,spec,res,yLabel,opts={}){
   if (!window.Chart || !cv.isConnected) return;
-  const grid=css('--grid'), t2=css('--text-2'), surf=css('--surface');
-  const tip={backgroundColor:'#1f1f1f',borderColor:'#363636',borderWidth:1,titleColor:'#ffffff',bodyColor:'#d1d4dc',padding:10,cornerRadius:8,boxPadding:4};
+  const grid=css('--grid'), t2=css('--text-2'), surf=css('--surface'), mode=isDark()?'dark':'light';
+  const tip=mode==='dark'
+    ?{backgroundColor:'#1f1f22',borderColor:'#38383c',borderWidth:1,titleColor:'#ffffff',bodyColor:'#d6d6d9',padding:10,cornerRadius:8,boxPadding:4}
+    :{backgroundColor:'#ffffff',borderColor:'#dcdce0',borderWidth:1,titleColor:'#141415',bodyColor:'#3c3c42',padding:10,cornerRadius:8,boxPadding:4};
   const pick=opts.onPick?(evt,els)=>{ if(!els.length) return; const l=res.labels[els[0].index]; if(String(l).startsWith('Outros (')) return; opts.onPick(l); }:undefined;
   const hover=(evt,els)=>{ const t=evt.native&&evt.native.target; if(t) t.style.cursor=opts.onPick&&els.length?'pointer':'default'; };
   if (spec.type==='pie'){
@@ -436,14 +443,14 @@ function makeChart(cv,spec,res,yLabel,opts={}){
     cfg.options.plugins.tooltip={...tip,callbacks:{label:ctx=>` ${yLabel}: ${nf.format(ctx.parsed)} (${pc(ctx.parsed)})`}};
     const ch=new Chart(cv,cfg); charts.push(ch); return ch;
   }
-  const extra=extraChartConfig(spec,res,yLabel,{mode:'dark',t2,grid,tip,live:true});
+  const extra=extraChartConfig(spec,res,yLabel,{mode,t2,grid,tip,live:true});
   if (extra){ const lo=extra.labelsOf; delete extra.labelsOf; Object.assign(extra.options,{onClick:opts.onPick?(evt,els)=>{ if(!els.length) return; const l=lo[els[0].index]; if(String(l).startsWith('Outros (')) return; opts.onPick(l); }:undefined,onHover:hover}); const ch=new Chart(cv,extra); charts.push(ch); return ch; }
   const horiz=spec.type==='hbar', line=spec.type==='line', n=res.labels.length;
   const valueAxis={beginAtZero:true,grid:{color:grid,drawTicks:false},border:{display:false},ticks:{color:t2,padding:6,callback:v=>nfc.format(v)}};
   const catAxis={grid:{display:false},border:{color:grid},ticks:{color:t2,autoSkip:true,maxRotation:0,callback:function(v){ const l=this.getLabelForValue(v); return String(l).length>22?String(l).slice(0,21)+'…':l; }}};
   let dataset, animation;
   if (line){
-    const col=ACCENT.dark;
+    const col=ACCENT[mode];
     dataset={label:yLabel,data:res.values,borderColor:col,borderWidth:2.5,tension:.3,pointRadius:n>40?0:3,pointHoverRadius:6,pointBackgroundColor:col,pointBorderColor:surf,pointBorderWidth:2,
       fill:true,backgroundColor:c=>{ const a=c.chart.chartArea; if(!a) return withAlpha(col,.15); const g=c.chart.ctx.createLinearGradient(0,a.top,0,a.bottom); g.addColorStop(0,withAlpha(col,.32)); g.addColorStop(1,withAlpha(col,0)); return g; }};
     // os pontos sobem da base um após o outro (onda da esquerda para a direita)
@@ -451,7 +458,7 @@ function makeChart(cv,spec,res,yLabel,opts={}){
     animation={duration:850,easing:'easeOutQuart',delay(c){ return c.type==='data'&&c.mode==='default'?c.dataIndex*step:0; }};
     var fc=spec.forecast?forecastOf(res):null;
   } else {
-    const cols=barColors(res,'dark');
+    const cols=barColors(res,mode);
     dataset={label:yLabel,data:res.values,backgroundColor:cols.map(c=>withAlpha(c,.82)),hoverBackgroundColor:cols,borderColor:cols,borderWidth:0,hoverBorderWidth:0,borderRadius:4,borderSkipped:'start',maxBarThickness:40};
     // barras crescem uma a uma
     animation={duration:750,easing:'easeOutQuart',delay(c){ return c.type==='data'&&c.mode==='default'?c.dataIndex*55:0; }};

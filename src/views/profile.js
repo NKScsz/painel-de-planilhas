@@ -84,7 +84,7 @@ function profileView(){
 function emptyState(){
   const drop=el('div',{class:'big-drop'},
     el('div',{style:'font-weight:600;font-size:15px;margin-bottom:4px',text:'Arraste uma planilha, PDF ou imagem para cá'}),
-    el('div',{class:'muted',style:'margin-bottom:14px',text:'Excel, CSV ou ODS (cada aba vira uma base), extratos e faturas em PDF, ou fotos e prints (PNG/JPG).'}),
+    el('div',{class:'muted',style:'margin-bottom:14px',text:'Excel, CSV ou ODS (cada aba vira uma base), extratos em PDF ou OFX, XML de notas fiscais (várias de uma vez viram uma base só), ou fotos e prints (PNG/JPG).'}),
     el('div',{class:'drop-btns'},el('button',{class:'btn primary',onclick:()=>pickFile('new'),disabled:S.readOnly},'Escolher arquivo'),
       el('button',{class:'btn',onclick:()=>sheetDialog(),disabled:S.readOnly},'Conectar Google Sheets')));
   bindDrop(drop);

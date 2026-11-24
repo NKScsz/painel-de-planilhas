@@ -2,7 +2,8 @@
 const S = {
   db:null, uid:null, me:null, mode:'loading', // loading | login | setup | cloud | local
   auth:null, unsubBases:null,
-  view:'home', // home | base | perfil | modelo
+  view:'home', // home | base | perfil | modelo | painel | consultas | sql | tv
+  board:[], // painel geral: [{b: id da planilha, c: id do gráfico}]
   profile:{}, profileDirty:false, unsubProfile:null, authUser:null,
   model:{relationships:[],positions:{}}, rowCache:{},
   bases:[], basesLoaded:false,

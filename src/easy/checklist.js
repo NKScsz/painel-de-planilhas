@@ -12,7 +12,7 @@ function checklist(){
   if (S.readOnly||S.mode==='share'||LS.get('ckHide')==='1') return null;
   const b=S.bases[0];
   const steps=[
-    {t:'Enviar uma planilha',d:'Excel, CSV, extrato em PDF ou foto de uma tabela',done:S.bases.length>0,go:()=>pickFile('new'),bt:'Enviar'},
+    {t:'Enviar uma planilha',d:'Excel, CSV, extrato em PDF ou OFX, nota fiscal em XML ou foto de uma tabela',done:S.bases.length>0,go:()=>pickFile('new'),bt:'Enviar'},
     {t:'Ver os gráficos',d:'Prontos sozinhos, cada um com explicação',done:LS.get('ck_ch')==='1',go:()=>openBaseTab(b.id,'graficos'),bt:'Ver gráficos'},
     {t:'Criar uma meta',d:'Por exemplo, faturamento do mês ou limite de gastos',done:S.bases.some(x=>(x.goals||[]).length),go:async()=>{ await openBaseTab(b.id,'graficos'); const m=currentMeta(); if(m&&S.rows) goalDialog(m); },bt:'Criar meta'},
     {t:'Gerar um relatório',d:'PDF pronto para enviar ou mandar no WhatsApp',done:LS.get('ck_rep')==='1',go:()=>openBaseTab(b.id,'relatorios'),bt:'Abrir relatórios'}];

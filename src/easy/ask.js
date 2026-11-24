@@ -3,7 +3,9 @@ import { autoCharts, chartKey, isTimeCol } from '../charts/auto-charts.js';
 import { aggregate, chartLabels, describeChart, makeChart, persistCharts } from '../charts/draw-and-pdf.js';
 import { HTML_TYPES, htmlChart } from '../charts/extra-types.js';
 import { S } from '../core/state.js';
-import { el, toast, uid8 } from '../core/utils.ts';
+import { el, fmtNum, toast, uid8 } from '../core/utils.ts';
+import { icon } from '../app/render.js';
+import { answer, answerText, parseQuestion, suggestions } from './free-ask.ts';
 import { fold, formModal } from '../features/extras.js';
 import { vizData } from '../views/data-model.js';
 import { colType, specFields } from '../views/new-chart.js';
@@ -30,9 +32,41 @@ function askQuestions(meta,rows){
 }
 function askSection(meta){
   if (!S.rows||!S.rows.length) return null;
-  const qs=askQuestions(meta,S.rows); if(!qs.length) return null;
-  return el('section',{class:'ask','data-tour':'ask'},el('div',{class:'ask-h',text:'Pergunte aos seus dados'}),
-    el('div',{class:'ask-chips'},qs.map(o=>el('button',{class:'ask-chip',type:'button',onclick:()=>askDialog(meta,o)},o.q))));
+  const qs=askQuestions(meta,S.rows);
+  const vd=vizData(meta,S.rows), ex=suggestions(vd.vmeta.columns,vd.rows);
+  const inp=el('input',{type:'search',class:'ask-input',maxlength:'160',placeholder:ex[0]?`Ex.: ${ex[0]}`:'Escreva sua pergunta','aria-label':'Pergunta sobre esta planilha',enterkeyhint:'search'});
+  const form=el('form',{class:'ask-form',onsubmit:e=>{ e.preventDefault(); const q=inp.value.trim(); if(q) freeAskDialog(meta,q); else inp.focus(); }},
+    icon('search'),inp,el('button',{class:'btn primary',type:'submit'},'Perguntar'));
+  return el('section',{class:'ask','data-tour':'ask'},el('div',{class:'ask-h',text:'Pergunte aos seus dados'}),form,
+    qs.length?el('div',{class:'ask-chips'},qs.map(o=>el('button',{class:'ask-chip',type:'button',onclick:()=>askDialog(meta,o)},o.q))):null);
+}
+/* Pergunta livre: interpretada por regras (free-ask.ts), com o "Entendi assim" visível para conferir */
+function freeAskDialog(meta,q){
+  const vd=vizData(meta,S.rows), cols=vd.vmeta.columns, rows=vd.rows;
+  const p=parseQuestion(q,cols,rows), body=el('div',{class:'free-ask'});
+  const again=x=>()=>{ document.querySelectorAll('.modal-bg').forEach(b=>b.remove()); freeAskDialog(meta,x); };
+  if (!p.ok){
+    body.append(el('p',{class:'fa-hint',text:`${p.hint} Use os nomes das colunas (por exemplo “${cols.find(c=>c.type==='number')?.name||cols[0].name}”) ou toque num destes exemplos:`}),
+      el('div',{class:'ask-chips'},p.examples.map(x=>el('button',{class:'ask-chip',type:'button',onclick:again(x)},x))));
+    formModal(q,null,body,null,null,'wide'); return;
+  }
+  const a=answer(p,cols,rows);
+  body.append(el('div',{class:'fa-understood'},el('b',{text:'Entendi assim: '}),p.understood.join(' · ')));
+  if (a.kind==='value'&&a.n) body.append(el('div',{class:'fa-big',text:fmtNum(a.value)}));
+  body.append(el('p',{class:'fa-answer',text:answerText(p,a)}));
+  let spec=null;
+  if (a.kind==='groups'&&a.groups.length>1){
+    const g=p.time?a.groups:a.groups.slice(0,15);
+    spec={id:uid8(),type:p.time?'line':'hbar',x:p.groupBy,y:p.measure||'',agg:p.agg==='count'?'count':p.agg};
+    const res={labels:g.map(x=>x.label),values:g.map(x=>x.value),ordered:p.time};
+    const box=el('div',{class:'chart-box'}), cv=el('canvas',{role:'img','aria-label':q}); box.append(cv); body.append(box);
+    requestAnimationFrame(()=>makeChart(cv,spec,res,p.understood[0]));
+    if (!p.time&&a.groups.length>g.length) body.append(el('div',{class:'chart-hint',text:`Mostrando os 15 primeiros de ${a.groups.length}`}));
+  }
+  body.append(el('div',{class:'fa-note',text:'A resposta usa todos os dados da planilha, sem os filtros do painel. Se algo não estiver como você quis dizer, tente usar os nomes das colunas.'}));
+  // fixar só quando o gráfico do painel consegue repetir exatamente esta pergunta
+  const canPin=spec&&!S.readOnly&&!p.range&&!p.sign&&!p.limit&&p.filters.length<=1&&!p.filters.some(f=>/^sa[ií]da/i.test(f.val))&&p.agg!=='max'&&p.agg!=='min';
+  formModal(q,null,body,canPin?'Fixar no painel':null,()=>{ const m=structuredClone(currentMeta()); const c={...specFields(spec),id:uid8(),title:q.replace(/\?\s*$/,'')}; if(p.filters[0]) c.filter={col:p.filters[0].col,val:p.filters[0].val}; (m.charts=m.charts||[]).unshift(c); persistCharts(m); toast('Gráfico fixado no topo do painel.'); },'wide');
 }
 function askDialog(meta,o){
   const vd=vizData(meta), spec={...o.spec,id:o.spec.id||uid8()}, res=aggregate(vd.vmeta,spec,vd.rows), {yLabel}=chartLabels(spec,res);
@@ -46,4 +80,4 @@ function askDialog(meta,o){
   formModal(o.q,null,body,has||S.readOnly?null:'Fixar no painel',()=>{ const m=structuredClone(currentMeta()); (m.charts=m.charts||[]).unshift({...specFields(spec),id:uid8()}); persistCharts(m); toast('Gráfico fixado no topo do painel.'); },'wide');
 }
 
-export { askDialog, askQuestions, askSection };
+export { askDialog, askQuestions, askSection, freeAskDialog };

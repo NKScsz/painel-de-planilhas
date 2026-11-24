@@ -8,7 +8,7 @@ import { TOUR, startTour } from '../features/sample-and-tour.js';
 /* ----- Ajuda e tour de cada tela ----- */
 const HELP={
   home:{t:'Como usar o painel',items:[
-    ['Envie uma planilha','Arraste um arquivo do Excel, CSV, um extrato em PDF ou até a foto de uma tabela. O painel arruma os dados sozinho.'],
+    ['Envie uma planilha','Arraste um arquivo do Excel, CSV, um extrato em PDF ou OFX, os XMLs das notas fiscais ou até a foto de uma tabela. O painel arruma os dados sozinho.'],
     ['Veja os gráficos','Cada planilha ganha gráficos prontos, com uma explicação em português embaixo de cada um.'],
     ['Acompanhe metas','Crie metas (ex.: faturamento do mês) ou limites (ex.: gastos). O painel avisa quando algo sai do ritmo.'],
     ['Envie relatórios','Baixe um PDF pronto ou mande pelo WhatsApp e e-mail com a mensagem já escrita.']]},

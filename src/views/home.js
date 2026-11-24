@@ -54,7 +54,7 @@ function homeView(){
       el('button',{class:'btn primary',disabled:S.readOnly,onclick:e=>{ e.stopPropagation(); pickFile('new'); }},'Escolher arquivo'),
       el('button',{class:'btn',disabled:S.readOnly,onclick:e=>{ e.stopPropagation(); sheetDialog(); }},'Conectar Google Sheets'),
       S.bases.length?null:el('button',{class:'btn',disabled:S.readOnly,onclick:e=>{ e.stopPropagation(); createSample(true); }},'Experimentar com dados de exemplo')),
-    el('div',{class:'ftypes'},['.xlsx / .xls','.csv / .ods','Extrato ou fatura .pdf','Foto ou print .png / .jpg'].map(t=>el('span',{class:'chip',text:t}))));
+    el('div',{class:'ftypes'},['.xlsx / .xls','.csv / .ods','Extrato .pdf / .ofx','Nota fiscal .xml','Foto ou print .png / .jpg'].map(t=>el('span',{class:'chip',text:t}))));
   if (!S.readOnly) bindDrop(drop);
   // tudo no eixo central: saudação, números, área de envio, atalhos e bases
   const home=el('div',{class:'home stagger'},meta,hero,ledger,checklist(),drop,quick,el('div',{class:'home-help'},helpBar('home')));

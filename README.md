@@ -4,12 +4,15 @@ Transforma planilhas, extratos e faturas em PDF em gráficos explicados, metas e
 
 ## O que faz
 
-- **Lê vários formatos:** Excel, CSV, ODS, Google Sheets, extratos e faturas em PDF e fotos de tabelas.
+- **Lê vários formatos:** Excel, CSV, ODS, Google Sheets, extratos em PDF ou **OFX**, **XML de notas fiscais (NF-e e NFC-e)** e fotos de tabelas.
 - **Arruma os dados:** remove linhas de total, cabeçalhos repetidos e linhas vazias, corrige tipos e padroniza nomes escritos de jeitos diferentes.
 - **Monta os gráficos sozinho,** de acordo com o tipo de dado: linha, barras, empilhadas, rosca, funil, mapa do Brasil e tabela resumo. Cada gráfico vem com uma explicação curta.
 - **Acompanha metas e limites** no ritmo do mês e avisa quando algo foge do padrão.
 - **Gera relatórios:** PDF explicado, PowerPoint editável e envio pelo WhatsApp, com logo e cor da empresa.
-- **Compartilha:** modo TV em tela cheia e link somente leitura para clientes.
+- **Perguntas livres, sem IA:** "quanto a Ana vendeu em março?", "em que categoria gastei mais?". A pergunta é interpretada por regras, com os nomes e valores da própria planilha, e o app mostra como entendeu.
+- **Painel geral:** gráficos de várias planilhas numa tela só.
+- **Compartilha:** gráfico como imagem para o WhatsApp, modo TV em tela cheia e link somente leitura para clientes.
+- **Tema claro e escuro** (ou automático, seguindo o sistema).
 - **Ferramentas avançadas:** consulta SQL entre planilhas, colunas com fórmula, histórico de versões e dados públicos de CNPJ e CEP.
 - **Instalável** no celular e no computador (PWA).
 

@@ -1,4 +1,5 @@
 import { baseAbbr, currentMeta, openBase, signIn } from './init.js';
+import { boardView } from '../views/board.js';
 import { destroyCharts } from '../charts/draw-and-pdf.js';
 import { S } from '../core/state.js';
 import { $, el, nf } from '../core/utils.ts';
@@ -49,6 +50,7 @@ function renderMain(){
   if (S.view==='modelo'){ main.append(modelView()); return; }
   if (S.view==='tv'){ main.append(tvView()); return; }
   if (S.view==='consultas'){ main.append(consultasView()); return; }
+  if (S.view==='painel'){ main.append(boardView()); return; }
   if (S.view==='sql'){ main.append(sqlView()); return; }
   const meta=currentMeta();
   if (!meta){ main.append(emptyState()); return; }
@@ -65,6 +67,12 @@ function renderMain(){
 }
 /* Ícones de linha fina (traço 1.25, cantos arredondados), no estilo de painéis de dados */
 const ICONS={
+  pin:'<path d="M9.6 2.2 13.8 6.4l-1.6.6-2.5 2.5.2 3-1.4 1.4-2.6-2.6L3 14M5.9 7.4 3.8 9.5l2.7 2.7"/><path d="m5.9 7.4 3.1-2.6.6-2.6"/>',
+  image:'<rect x="2" y="2.5" width="12" height="11" rx="1.5"/><circle cx="5.8" cy="6.2" r="1.2"/><path d="m2.5 12 3.6-3.6 2.4 2.4 2-2 3 3"/>',
+  board:'<rect x="2" y="2" width="5.2" height="6.4" rx="1"/><rect x="8.8" y="2" width="5.2" height="3.6" rx="1"/><rect x="8.8" y="7.2" width="5.2" height="6.8" rx="1"/><rect x="2" y="10" width="5.2" height="4" rx="1"/>',
+  sun:'<circle cx="8" cy="8" r="2.8"/><path d="M8 1.8v1.4M8 12.8v1.4M1.8 8h1.4M12.8 8h1.4M3.6 3.6l1 1M11.4 11.4l1 1M3.6 12.4l1-1M11.4 4.6l1-1"/>',
+  moon:'<path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8z"/>',
+  monitor:'<rect x="1.8" y="2.5" width="12.4" height="8.6" rx="1.4"/><path d="M5.6 13.6h4.8M8 11.1v2.5"/>',
   table:'<rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M2 6.2h12M2 9.8h12M6 6.2v7.3"/>',
   sheet:'<path d="M4 1.8h5.2L12.5 5v9.2H4z"/><path d="M9 1.8V5h3.5M6 8h4.5M6 10.8h4.5M8.2 8v5"/>',
   chart:'<path d="M2.5 13.5h11M4.5 11V8.2M8 11V4.2M11.5 11V6.5"/>',
@@ -132,7 +140,7 @@ function tyIcon(t){ const k=t==='number'||t==='date'?t:'text', s=icon('ty-'+k,14
 function renderSidebar(){
   $('#delAllBtn').disabled=S.readOnly||!S.bases.length;
   $('#profileNav').classList.toggle('active',S.view==='perfil');
-  $('#modelNav').classList.toggle('active',S.view==='modelo');
+  $('#modelNav').classList.toggle('active',S.view==='modelo'); $('#boardNav').classList.toggle('active',S.view==='painel');
   $('#cqNav').classList.toggle('active',S.view==='consultas');
   $('#sqlNav').classList.toggle('active',S.view==='sql');
   const box=$('#bases'); box.innerHTML='';
@@ -155,13 +163,13 @@ function loginPreview(){
   const W=480,H=150,L=8,R=8,T=12,B=26,lo=12000,hi=20000;
   const x=i=>L+i*(W-L-R)/(vals.length-1), y=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
   const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  const grid=[14000,16000,18000].map(g=>`<line x1="${L}" x2="${W-R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}" stroke="#232325" stroke-width="1"/>`).join('');
+  const grid=[14000,16000,18000].map(g=>`<line x1="${L}" x2="${W-R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}" style="stroke:var(--grid)" stroke-width="1"/>`).join('');
   const lbls=meses.map((m,i)=>`<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="${i===0?'start':i===meses.length-1?'end':'middle'}">${m}</text>`).join('');
   const last=vals.length-1;
   const svg=`<svg class="pc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Faturamento de maio a outubro, subindo nos últimos três meses">${grid}`+
-    `<polygon points="${x(0)},${H-B} ${pts} ${x(last)},${H-B}" fill="#4a7dff" fill-opacity=".08"/>`+
-    `<polyline points="${pts}" fill="none" stroke="#4a7dff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`+
-    `<circle cx="${x(last)}" cy="${y(vals[last])}" r="4" fill="#4a7dff" stroke="#19191b" stroke-width="2"/>${lbls}</svg>`;
+    `<polygon points="${x(0)},${H-B} ${pts} ${x(last)},${H-B}" style="fill:var(--accent)" fill-opacity=".08"/>`+
+    `<polyline points="${pts}" fill="none" style="stroke:var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`+
+    `<circle cx="${x(last)}" cy="${y(vals[last])}" r="4" style="fill:var(--accent);stroke:var(--surface)" stroke-width="2"/>${lbls}</svg>`;
   const chart=el('div'); chart.innerHTML=svg;
   const fill=el('i',{style:'width:92%'}), tick=el('u',{style:'left:73%',title:'Onde você deveria estar hoje'});
   return el('div',{class:'lp-prev','aria-label':'Exemplo do painel com dados fictícios'},
@@ -183,7 +191,7 @@ function loginScreen(){
   const landing=el('div',{class:'landing'},
     el('section',{class:'lp-sec'},el('div',{class:'kicker',text:'Recursos'}),el('h2',{text:'Tudo o que você precisa para entender seus dados'}),
       el('div',{class:'lp-grid'},
-        feat('upload','Qualquer arquivo','Excel, CSV, Google Sheets, extratos e faturas em PDF ou foto. Abas de meses viram uma base só.'),
+        feat('upload','Qualquer arquivo','Excel, CSV, Google Sheets, extratos em PDF ou OFX, XML de notas fiscais e fotos de tabelas. Abas de meses viram uma base só.'),
         feat('table','Limpeza automática','Remove linhas de total, cabeçalhos repetidos e vazios, corrige tipos e padroniza nomes escritos de jeitos diferentes.'),
         feat('chart','Gráficos que fazem sentido','Reconhece vendas, financeiro, estoque, RH e marketing e monta os gráficos certos, cada um com explicação.'),
         feat('map','Mapa, funil e tabela dinâmica','Mapa do Brasil por estado, funil de etapas, barras empilhadas, linha com tendência e tabela dinâmica.'),
@@ -206,7 +214,7 @@ function loginScreen(){
       loginPreview(),
       el('div',{class:'kicker',text:'Como funciona'}),
       el('ol',{class:'steps stagger'},
-        step('01','Envie um arquivo','Excel, CSV, extrato ou fatura em PDF, ou a foto de uma tabela'),
+        step('01','Envie um arquivo','Excel, CSV, extrato em PDF ou OFX, XML de nota fiscal ou a foto de uma tabela'),
         step('02','Veja os gráficos','Escolhidos de acordo com os seus dados, cada um com uma explicação curta'),
         step('03','Conecte e exporte','Cruze bases entre si e baixe o relatório em PDF com sua empresa')))),landing);
 }

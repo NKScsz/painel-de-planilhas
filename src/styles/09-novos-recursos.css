@@ -1,0 +1,45 @@
+/* Recursos novos: perguntas livres, painel geral, imagem do gráfico e botão de tema */
+
+/* pergunta livre */
+.ask-form{display:flex;align-items:center;gap:8px;position:relative;margin-bottom:12px;max-width:720px}
+.ask-form>svg.ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none}
+.ask-input{flex:1;min-width:0;height:40px;padding:0 12px 0 36px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-strong);font-size:14px}
+.ask-input::placeholder{color:var(--text-3)}
+.ask-form .btn{height:40px}
+.free-ask{display:flex;flex-direction:column;gap:12px}
+.fa-understood{font-size:12.5px;color:var(--text-2);background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;line-height:1.5}
+.fa-understood b{color:var(--text-3);font-weight:500}
+.fa-big{font-size:40px;line-height:1;font-weight:500;color:var(--text-strong);font-variant-numeric:tabular-nums;margin-top:4px}
+.fa-answer{margin:0;font-size:15px;line-height:1.55;color:var(--text)}
+.fa-note{font-size:12px;color:var(--text-3);line-height:1.5}
+.fa-hint{margin:0 0 4px;color:var(--text-2);line-height:1.55}
+.free-ask .chart-box{height:300px}
+
+/* painel geral */
+.board-head{margin-bottom:20px}
+.board-head h1{margin:0 0 4px;font-size:clamp(24px,2.4vw,32px)}
+.board-head p{margin:0;color:var(--text-2);max-width:640px;line-height:1.55}
+.board-src{display:flex;align-items:center;gap:4px}
+.board-src svg.ico{color:var(--text-3)}
+.board-loading{height:240px;display:grid;place-items:center}
+.board-empty{height:160px;display:grid;place-items:center;font-size:13px}
+
+/* alfinete: fixado no painel geral */
+.pin-btn.on{color:var(--accent)}
+.pin-btn.on:hover{color:var(--accent-hover)}
+
+/* botão de tema no topo */
+.theme-btn{width:32px;height:32px;border-radius:8px;color:var(--text-2)}
+.theme-btn:hover{background:var(--surface-2);color:var(--text-strong)}
+
+@media (max-width:860px){
+  .ask-form{max-width:none}
+  .ask-form .btn{padding:0 12px}
+  .fa-big{font-size:32px}
+  .free-ask .chart-box{height:240px}
+}
+
+/* celular: os gráficos já ocupam a largura toda, então o botão de alargar sai e o título respira */
+@media (max-width:860px){
+  .chart-card .icon-btn[title="Ocupar a largura toda"],.chart-card .icon-btn[title="Deixar no tamanho normal"],.chart-card .drag-h{display:none}
+}
