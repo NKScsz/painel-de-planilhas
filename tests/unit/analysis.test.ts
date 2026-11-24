@@ -53,13 +53,13 @@ describe('forecastOf: tendência por linha reta', () => {
 describe('barColors: uma cor de destaque por gráfico', () => {
   it('só a maior barra leva o azul', () => {
     const c = barColors({ labels: ['Ana', 'Bruno', 'Carla'], values: [5, 9, 3] }, 'dark');
-    expect(c.filter((x: string) => x === '#4a7dff')).toHaveLength(1);
-    expect(c[1]).toBe('#4a7dff');
+    expect(c.filter((x: string) => x === '#4299e0')).toHaveLength(1);
+    expect(c[1]).toBe('#4299e0');
   });
   it('entrada e saída mantêm verde e vermelho', () => {
     const c = barColors({ labels: ['Entrada', 'Saída'], values: [100, 80] }, 'dark');
     expect(new Set(c).size).toBe(2);
-    expect(c).not.toContain('#4a7dff');
+    expect(c).not.toContain('#4299e0');
   });
 });
 

@@ -109,7 +109,7 @@ test('troca para o tema claro e mantém depois de recarregar', async ({ page }) 
   await page.getByRole('menuitem', { name: /^Claro/ }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe('rgb(250, 250, 250)');
+  expect(bg).toBe('rgb(246, 247, 249)');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.locator('#themeBtn').click();

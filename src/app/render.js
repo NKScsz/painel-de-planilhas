@@ -139,7 +139,7 @@ function tyIcon(t){ const k=t==='number'||t==='date'?t:'text', s=icon('ty-'+k,14
   const w=el('span',{class:'ty',title:{number:'Número',date:'Data',text:'Texto'}[k]}); w.append(s); return w; }
 function renderSidebar(){
   $('#delAllBtn').disabled=S.readOnly||!S.bases.length;
-  $('#profileNav').classList.toggle('active',S.view==='perfil');
+  $('#profileNav').classList.toggle('active',S.view==='perfil'); $('#homeNav').classList.toggle('active',S.view==='home');
   $('#modelNav').classList.toggle('active',S.view==='modelo'); $('#boardNav').classList.toggle('active',S.view==='painel');
   $('#cqNav').classList.toggle('active',S.view==='consultas');
   $('#sqlNav').classList.toggle('active',S.view==='sql');

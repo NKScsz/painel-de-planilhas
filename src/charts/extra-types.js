@@ -45,14 +45,14 @@ function htmlChartImage(spec,res,th){
     for (const [u,[col,row]] of Object.entries(UF_TILE)){
       const v=by[u], t=v!=null?Math.max(0.12,Math.abs(v)/mx):0, rgb=v!=null?mixRgb(base,[ar,ag,ab],t):base;
       c.fillStyle=`rgb(${rgb.join(',')})`; c.beginPath(); c.roundRect(ox+col*s+2,oy+row*s+2,s-4,s-4,6); c.fill();
-      c.fillStyle=t>0.55?'#ffffff':(v!=null?txt:t2); c.textAlign='center'; c.font=`700 ${fs}px Inter, Arial, sans-serif`; c.fillText(u,ox+col*s+s/2,oy+row*s+s/2-(v!=null?2:-4));
-      if (v!=null){ c.font=`500 ${fs-3}px Inter, Arial, sans-serif`; c.fillText(nfc.format(v),ox+col*s+s/2,oy+row*s+s/2+fs-2); }
+      c.fillStyle=t>0.55?'#ffffff':(v!=null?txt:t2); c.textAlign='center'; c.font=`700 ${fs}px Segoe UI, -apple-system, Roboto, Arial, sans-serif`; c.fillText(u,ox+col*s+s/2,oy+row*s+s/2-(v!=null?2:-4));
+      if (v!=null){ c.font=`500 ${fs-3}px Segoe UI, -apple-system, Roboto, Arial, sans-serif`; c.fillText(nfc.format(v),ox+col*s+s/2,oy+row*s+s/2+fs-2); }
     }
   } else {
     const p=res.pivot; if(!p) return cv.toDataURL('image/jpeg',0.93);
     const cols=[p.rowName,...p.cols,p.cols.length?'Total':(p.agg==='count'?'Registros':p.measure)], rowsT=[...p.rows.map(r=>[r.key,...r.cells,r.total]),['Total',...p.total.cells,p.total.total]];
-    const rh=Math.min(34,(H-10)/(rowsT.length+1)), cw0=Math.min(W*0.38,260), cw=(W-cw0-10)/(cols.length-1); c.font=`${fs}px Inter, Arial, sans-serif`;
-    const cell=(s,x,y,w,right,bold,color)=>{ c.fillStyle=color; c.font=`${bold?700:400} ${fs}px Inter, Arial, sans-serif`; c.textAlign=right?'right':'left'; let t=String(s); while(c.measureText(t).width>w-12&&t.length>3) t=t.slice(0,-2)+'…'; c.fillText(t,right?x+w-6:x+6,y+rh*0.65); };
+    const rh=Math.min(34,(H-10)/(rowsT.length+1)), cw0=Math.min(W*0.38,260), cw=(W-cw0-10)/(cols.length-1); c.font=`${fs}px Segoe UI, -apple-system, Roboto, Arial, sans-serif`;
+    const cell=(s,x,y,w,right,bold,color)=>{ c.fillStyle=color; c.font=`${bold?700:400} ${fs}px Segoe UI, -apple-system, Roboto, Arial, sans-serif`; c.textAlign=right?'right':'left'; let t=String(s); while(c.measureText(t).width>w-12&&t.length>3) t=t.slice(0,-2)+'…'; c.fillText(t,right?x+w-6:x+6,y+rh*0.65); };
     cols.forEach((h,i)=>cell(h,i?cw0+(i-1)*cw:0,0,i?cw:cw0,i>0,true,t2));
     rowsT.forEach((r,ri)=>{ const y=(ri+1)*rh, last=ri===rowsT.length-1; c.fillStyle=th.grid||'#e8e7e2'; c.fillRect(0,y,W,1);
       r.forEach((v,i)=>cell(i?(v==null?'—':fmtNum(v)):v,i?cw0+(i-1)*cw:0,y,i?cw:cw0,i>0,last||i===r.length-1,txt)); });
@@ -77,7 +77,7 @@ function extraChartConfig(spec,res,yLabel,o){
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:700},
         plugins:{legend:{display:false},tooltip:o.tip?{...o.tip,callbacks:{label:ctx=>` ${yLabel}: ${nf.format(v[ctx.dataIndex])}${v[0]?` (${pct1(v[ctx.dataIndex]/v[0]*100)} da 1ª etapa)`:''}`}}:{enabled:false}},
         scales:{x:{display:false,min:-mx/2*1.04,max:mx/2*1.04},y:{grid:{display:false},border:{display:false},ticks:{color:t2,font,callback:cut(20)}}}},
-      plugins:[{id:'funnelLabels',afterDatasetsDraw(c2){ const x=c2.ctx; x.save(); x.font=`600 ${fpx}px Inter, Arial, sans-serif`; x.fillStyle='#fff'; x.textAlign='center'; x.textBaseline='middle';
+      plugins:[{id:'funnelLabels',afterDatasetsDraw(c2){ const x=c2.ctx; x.save(); x.font=`600 ${fpx}px Segoe UI, -apple-system, Roboto, Arial, sans-serif`; x.fillStyle='#fff'; x.textAlign='center'; x.textBaseline='middle';
         c2.getDatasetMeta(0).data.forEach((b,i)=>{ if(b.height<12) return; x.fillText(`${nfc.format(v[i])}${i&&v[0]?` · ${pct1(v[i]/v[0]*100)}`:''}`,(c2.chartArea.left+c2.chartArea.right)/2,b.y); }); x.restore(); }}]};
   }
   return null;

@@ -54,7 +54,10 @@ import { goHome, init, openProfile, setAsideCollapsed, signOut } from './app/ini
 import { render } from './app/render.js';
 import { S } from './core/state.js';
 import { $, toast } from './core/utils.ts';
-import { LS, applySimple, setSimple } from './easy/simple-mode.js';
+import { LS, applySimple, popMenu, setSimple } from './easy/simple-mode.js';
+import { sheetDialog } from './features/google-sheets.js';
+import { createSample } from './features/sample-and-tour.js';
+import { templatesDialog } from './features/templates.js';
 import { bulkDelete } from './features/bulk-delete.js';
 import { openConsultas } from './features/cnpj-cep.js';
 import { openSql } from './features/sql.js';
@@ -77,6 +80,15 @@ $('#homeBtn').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ 
 $('#logoutBtn').onclick=signOut;
 $('#fileInput').addEventListener('change',e=>handleFiles([...e.target.files]));
 $('#addBtn').onclick=()=>pickFile('new');
+// botão "Novo" no topo do menu: as formas de criar uma planilha num lugar só
+$('#newBtn').onclick=e=>popMenu(e.currentTarget,[
+  {icon:'upload',label:'Enviar arquivo',hint:'Excel, CSV, extrato em PDF ou OFX, nota fiscal em XML ou foto de tabela',disabled:S.readOnly,onclick:()=>pickFile('new')},
+  {icon:'file',label:'Planilha modelo',hint:'Vendas, financeiro, estoque, RH e marketing',disabled:S.readOnly,onclick:()=>templatesDialog(null)},
+  {icon:'table',label:'Google Sheets',hint:'Conectar uma planilha que se atualiza',disabled:S.readOnly,onclick:()=>sheetDialog()},
+  {sep:true},
+  {icon:'chart',label:'Dados de exemplo',hint:'Uma planilha de vendas fictícia para experimentar',disabled:S.readOnly,onclick:()=>createSample(true)},
+],'Novo');
+$('#homeNav').onclick=()=>{ $('#aside').classList.remove('open'); goHome(); };
 $('#delAllBtn').onclick=()=>{ if(!S.bases.length){ toast('Você ainda não tem bases.'); return; } bulkDelete(S.bases.map(b=>b.id)); };
 $('#menuBtn').onclick=()=>$('#aside').classList.toggle('open');
 $('#drawerBg').onclick=()=>$('#aside').classList.remove('open');
@@ -87,7 +99,7 @@ document.addEventListener('keydown',e=>{
     const r=(S.model.relationships||[]).find(x=>x.id===S.modelSel); if(r){ e.preventDefault(); deleteRelation(r); }
   } else if (e.key==='Escape'&&S.modelSel){ S.modelSel=null; render(); }
 });
-if (window.Chart){ Chart.defaults.font.family="'Inter', system-ui, sans-serif"; Chart.defaults.font.size=12; }
+if (window.Chart){ Chart.defaults.font.family="-apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"; Chart.defaults.font.size=12; }
 S.simple=LS.get('modoSimples','1')==='1';
 applySimple();
 $('#advNav').onclick=()=>{ $('#aside').classList.remove('open'); setSimple(!S.simple); };

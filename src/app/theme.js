@@ -13,7 +13,7 @@ const resolved = () => { const p = pref(); return p === 'auto' ? (systemLight() 
 function applyTheme() {
   const t = resolved(), root = document.documentElement;
   root.dataset.theme = t; root.style.colorScheme = t;
-  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', t === 'light' ? '#fafafa' : '#141415');
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', t === 'light' ? '#f6f7f9' : '#1f272d');
   const b = $('#themeBtn'); if (b) { b.replaceChildren(icon(t === 'light' ? 'sun' : 'moon')); b.title = `Tema: ${{ auto: 'automático', light: 'claro', dark: 'escuro' }[pref()]}`; }
 }
 function setTheme(p) { try { localStorage.setItem(KEY, p); } catch { /* sem armazenamento: vale só nesta visita */ } applyTheme(); render(); }

@@ -88,10 +88,10 @@ function chartImage(spec,res,yLabel,th={}){
   const wrap=el('div',{style:`position:fixed;left:-10000px;top:0;width:${W}px;height:${H}px`});
   const cv=el('canvas',{width:W,height:H}); wrap.append(cv); document.body.append(wrap);
   const horiz=spec.type==='hbar', line=spec.type==='line';
-  const font={family:'Inter, Arial, sans-serif',size:th.font||13};
+  const font={family:'Segoe UI, -apple-system, Roboto, Arial, sans-serif',size:th.font||13};
   const showVals=res.labels.length<=(line?12:16);
   const bg={id:'bg',beforeDraw(ch){ const c=ch.ctx; c.save(); c.fillStyle=bgc; c.fillRect(0,0,ch.width,ch.height); c.restore(); }};
-  const vl={id:'vl',afterDatasetsDraw(ch){ if(!showVals) return; const c=ch.ctx; c.save(); c.font=`600 ${(th.font||13)-1}px Inter, Arial, sans-serif`; c.fillStyle=th.val||'#222';
+  const vl={id:'vl',afterDatasetsDraw(ch){ if(!showVals) return; const c=ch.ctx; c.save(); c.font=`600 ${(th.font||13)-1}px Segoe UI, -apple-system, Roboto, Arial, sans-serif`; c.fillStyle=th.val||'#222';
     ch.getDatasetMeta(0).data.forEach((pt,i)=>{ if(i>=res.values.length) return; const t=fmtNum(res.values[i]); if(horiz){ c.textAlign='left'; c.textBaseline='middle'; c.fillText(t,pt.x+6,pt.y); } else { c.textAlign='center'; c.textBaseline='bottom'; c.fillText(t,pt.x,pt.y-(line?8:5)); } }); c.restore(); }};
   const valueAxis={beginAtZero:true,grace:'10%',grid:{color:grid,drawTicks:false},border:{display:false},ticks:{color:t2,padding:8,font,callback:v=>nfc.format(v)}};
   const catAxis={grid:{display:false},border:{color:th.border||'#cfcec8'},ticks:{color:t2,font,autoSkip:true,maxRotation:horiz?0:40,callback:function(v){ const l=String(this.getLabelForValue(v)); return l.length>26?l.slice(0,25)+'…':l; }}};
@@ -401,7 +401,7 @@ function colorsFor(labels,mode){
 }
 /* Uma cor de destaque por gráfico: numa série só, a maior barra leva o azul e as outras ficam em cinza.
    Entrada/saída mantêm verde e vermelho, porque ali a cor tem significado. */
-const ACCENT={dark:'#4a7dff',light:'#2a5bd7'}, BAR_NEUTRAL={dark:'#4a4a50',light:'#b9bcc3'};
+const ACCENT={dark:'#4299e0',light:'#2272b4'}, BAR_NEUTRAL={dark:'#3e4c57',light:'#c0cdd8'};
 function barColors(res,mode){
   if (res.labels.some(l=>/^(entrada|sa[ií]da)s?$/i.test(String(l).trim()))) return colorsFor(res.labels,mode);
   const vals=res.values.map(v=>Math.abs(+v||0)), max=Math.max(0,...vals); let hit=false;
@@ -431,8 +431,8 @@ function makeChart(cv,spec,res,yLabel,opts={}){
   if (!window.Chart || !cv.isConnected) return;
   const grid=css('--grid'), t2=css('--text-2'), surf=css('--surface'), mode=isDark()?'dark':'light';
   const tip=mode==='dark'
-    ?{backgroundColor:'#1f1f22',borderColor:'#38383c',borderWidth:1,titleColor:'#ffffff',bodyColor:'#d6d6d9',padding:10,cornerRadius:8,boxPadding:4}
-    :{backgroundColor:'#ffffff',borderColor:'#dcdce0',borderWidth:1,titleColor:'#141415',bodyColor:'#3c3c42',padding:10,cornerRadius:8,boxPadding:4};
+    ?{backgroundColor:'#1f272d',borderColor:'#37444f',borderWidth:1,titleColor:'#e8ecf0',bodyColor:'#c0cdd8',padding:10,cornerRadius:4,boxPadding:4}
+    :{backgroundColor:'#ffffff',borderColor:'#d1d9e1',borderWidth:1,titleColor:'#11171c',bodyColor:'#5f7281',padding:10,cornerRadius:4,boxPadding:4};
   const pick=opts.onPick?(evt,els)=>{ if(!els.length) return; const l=res.labels[els[0].index]; if(String(l).startsWith('Outros (')) return; opts.onPick(l); }:undefined;
   const hover=(evt,els)=>{ const t=evt.native&&evt.native.target; if(t) t.style.cursor=opts.onPick&&els.length?'pointer':'default'; };
   if (spec.type==='pie'){
@@ -467,7 +467,7 @@ function makeChart(cv,spec,res,yLabel,opts={}){
   // barras de categorias (não tempo): rótulo com valor e fatia do total na ponta de cada barra
   const tot=res.values.reduce((a,b)=>a+b,0), shareOk=!line&&!res.ordered&&(!spec.y||spec.agg==='sum'||spec.agg==='count')&&tot>0&&res.values.every(v=>v>=0);
   const pctOf=v=>shareOk?` (${pct1(v/tot*100)})`:'';
-  const barLabels=!line&&!res.ordered&&n<=(horiz?15:8)?{id:'barLabels',afterDatasetsDraw(c2){ const x=c2.ctx; x.save(); x.font='600 11px Inter, system-ui, sans-serif'; x.fillStyle=t2;
+  const barLabels=!line&&!res.ordered&&n<=(horiz?15:8)?{id:'barLabels',afterDatasetsDraw(c2){ const x=c2.ctx; x.save(); x.font='600 11px Segoe UI, -apple-system, Roboto, Arial, sans-serif'; x.fillStyle=t2;
     c2.getDatasetMeta(0).data.forEach((b,i)=>{ const v=res.values[i], t=nfc.format(v)+(shareOk?` · ${pct1(v/tot*100)}`:'');
       if (horiz){ x.textAlign='left'; x.textBaseline='middle'; x.fillText(t,b.x+6,b.y); } else { x.textAlign='center'; x.textBaseline='bottom'; x.fillText(t,b.x,b.y-4); } }); x.restore(); }}:null;
   if (barLabels) valueAxis.grace=horiz?'22%':'12%';

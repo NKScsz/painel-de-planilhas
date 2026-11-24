@@ -28,7 +28,7 @@ async function chartPicture(meta, spec, res) {
   const [chartImg, logo] = await Promise.all([loadImg(chartImage(spec, res, yLabel, { w: inner, h: chartH, font: 15 })), loadImg(b.logo)]);
   const note = describeChart(meta, spec, res);
   const cv = document.createElement('canvas'), ctx = cv.getContext('2d');
-  const font = (w, s) => `${w} ${s}px Inter, "Segoe UI", Arial, sans-serif`;
+  const font = (w, s) => `${w} ${s}px "Segoe UI", -apple-system, Roboto, Arial, sans-serif`;
   // mede a explicação antes de definir a altura
   ctx.font = font(400, 24); const noteLines = wrap(ctx, note, inner).slice(0, 7);
   ctx.font = font(600, 40); const titleLines = wrap(ctx, title, inner).slice(0, 2);
