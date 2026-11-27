@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'es2022',
-    sourcemap: 'hidden',
+    sourcemap: false, // o mapa do código não vai para o site publicado
   },
   test: {
     environment: 'jsdom',

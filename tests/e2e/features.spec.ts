@@ -117,3 +117,19 @@ test('troca para o tema claro e mantém depois de recarregar', async ({ page }) 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   expect(errors).toEqual([]);
 });
+
+test('lê um extrato em PDF e abre a conferência antes de importar', async ({ page }) => {
+  const errors = trackErrors(page);
+  await openDemo(page);
+  // PDF com texto, gerado pelo próprio jsPDF do app
+  const pdf = await page.evaluate(() => {
+    const d = new (window as any).jspdf.jsPDF(); d.setFontSize(10); let y = 20;
+    d.text('Data        Descricao                 Valor', 10, y);
+    for (const [a, c, v] of [['01/11/2026', 'Salario Empresa X', '3.500,00'], ['03/11/2026', 'Padaria Sao Joao', '-45,90'], ['05/11/2026', 'Supermercado Bom Preco', '-230,00'], ['06/11/2026', 'Posto Avenida', '-180,00']]) { y += 8; d.text(a, 10, y); d.text(c, 40, y); d.text(v, 120, y); }
+    return d.output('datauristring').split(',')[1] as string;
+  });
+  await page.locator('#fileInput').setInputFiles({ name: 'extrato.pdf', mimeType: 'application/pdf', buffer: Buffer.from(pdf, 'base64') });
+  await expect(page.locator('[role=dialog]')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[role=dialog]')).toContainText('Padaria');
+  expect(errors).toEqual([]);
+});

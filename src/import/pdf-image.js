@@ -11,9 +11,18 @@ import { tableFromAoa } from './spreadsheet.js';
    e cada linha de dados é ancorada na coluna mais "regular" (hora, data ou valor). */
 const DOC_EXT=['pdf','png','jpg','jpeg','webp','bmp','gif'];
 const libCache={};
+// impressões digitais (SRI): se o arquivo da CDN for adulterado, o navegador não executa
+const SRI={
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js':'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e',
+  'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js':'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F',
+  'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js':'sha384-8D3Rsfo535FqoC1pHCCQMrNf75UgzyoG/HQm9zOzITRrz3QKzecc2E7JXKGCXoWu',
+  'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js':'sha384-Cck14aA9cifjYolcnjebXRfWGkz5ltHMBiG4px/j8GS+xQcb7OhNQWZYyWjQ+UwQ',
+};
 function loadScript(src){
   return libCache[src]||(libCache[src]=new Promise((ok,err)=>{
-    const s=document.createElement('script'); s.src=src; s.onload=ok;
+    const s=document.createElement('script'); s.onload=ok;
+    // ?v=2: endereço novo, para o cache antigo do app (guardado sem checagem) não ser reaproveitado
+    if (SRI[src]){ s.src=src+'?v=2'; s.integrity=SRI[src]; s.crossOrigin='anonymous'; } else s.src=src;
     s.onerror=()=>{ delete libCache[src]; s.remove(); err(Object.assign(new Error('lib'),{code:'lib-load'})); };
     document.head.append(s);
   }));
@@ -48,7 +57,8 @@ async function prepImage(file){
 }
 async function pdfPages(file,status){
   const lib=await getPdfjs();
-  const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  // isEvalSupported:false bloqueia a falha CVE-2024-4367 (PDF malicioso rodando código na página)
+  const pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
   const pages=[]; let ocr=false;
   for (let p=1;p<=pdf.numPages;p++){
     status(`Lendo PDF: página ${p} de ${pdf.numPages}…`);
