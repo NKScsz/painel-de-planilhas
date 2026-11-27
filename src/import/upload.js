@@ -97,7 +97,7 @@ async function handleFiles(files){
     t.remove();
     const cleanTxt=fixes?` Dados higienizados (${fixes} ${fixes===1?'tipo de ajuste':'tipos de ajuste'}): veja o resumo na aba Dados.`:'';
     if (mergeNotes.length) toast(mergeNotes.join(' ')+cleanTxt,false,10000);
-    else toast((tables.length>1?`${tables.length} tabelas importadas como bases separadas.`:'Planilha importada e salva.')+cleanTxt,false,fixes?7000:3800);
+    else toast((tables.length>1?(tables.every(tb=>tb.group&&tb.group.id===tables[0].group.id)?`Planilha importada com ${tables.length} abas: escolha a aba logo abaixo do título.`:`${tables.length} tabelas importadas como planilhas separadas.`):'Planilha importada e salva.')+cleanTxt,false,fixes?7000:3800);
     openBase(firstId);
   }catch(e){
     t.remove(); console.error(e);
