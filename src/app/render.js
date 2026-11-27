@@ -1,11 +1,11 @@
 import { NO_LOGIN, baseAbbr, currentMeta, openBase, signIn } from './init.js';
 import { baseEntries, sheetLabel } from '../core/groups.js';
+import { loginScreen } from '../views/landing.js';
 import { boardView } from '../views/board.js';
 import { destroyCharts } from '../charts/draw-and-pdf.js';
 import { S } from '../core/state.js';
 import { $, el, nf } from '../core/utils.ts';
 import { consultasView } from '../features/cnpj-cep.js';
-import { startDemo } from '../features/sample-and-tour.js';
 import { shareView } from '../features/share.js';
 import { sqlView } from '../features/sql.js';
 import { clearTvTimers, tvView } from '../features/tv-mode.js';
@@ -121,6 +121,8 @@ const ICONS={
   tag:'<path d="M2.5 2.5h5.2l5.8 5.8-5.2 5.2-5.8-5.8z"/><circle cx="5.4" cy="5.4" r=".9"/>',
   building:'<rect x="2.5" y="2" width="7" height="12" rx="1"/><path d="M9.5 6h3c.6 0 1 .4 1 1v7h-4M4.8 5h2.4M4.8 8h2.4M4.8 11h2.4"/>',
   home:'<path d="M2.5 7.2 8 2.5l5.5 4.7M4 6v7.5h8V6"/>',
+  check:'<path d="M3 8.6l3.1 3L13 4.6"/>',
+  arrow:'<path d="M3 8h10M9.2 4.2 13 8l-3.8 3.8"/>',
   sliders:'<path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7"/><circle cx="11" cy="4.5" r="1.6"/><circle cx="5" cy="11.5" r="1.6"/>',
   sparkle:'<path d="M8 2.2c.5 3 1.8 4.3 4.8 4.8-3 .5-4.3 1.8-4.8 4.8-.5-3-1.8-4.3-4.8-4.8 3-.5 4.3-1.8 4.8-4.8zM12.8 11v2.6M11.5 12.3h2.6"/>',
   calendar:'<rect x="2" y="3" width="12" height="10.8" rx="1.5"/><path d="M2 6.6h12M5.2 1.8v2.4M10.8 1.8v2.4"/>',
@@ -162,68 +164,6 @@ function googleLogo(){
 }
 /* Prévia do painel na entrada: mostra o que o produto entrega (indicador, gráfico explicado e meta com
    o traço de ritmo). Dados fictícios, avisados no próprio cartão. */
-function loginPreview(){
-  const vals=[14200,15100,13800,15900,16700,18420], meses=['mai','jun','jul','ago','set','out'];
-  const W=480,H=150,L=8,R=8,T=12,B=26,lo=12000,hi=20000;
-  const x=i=>L+i*(W-L-R)/(vals.length-1), y=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
-  const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  const grid=[14000,16000,18000].map(g=>`<line x1="${L}" x2="${W-R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}" style="stroke:var(--grid)" stroke-width="1"/>`).join('');
-  const lbls=meses.map((m,i)=>`<text x="${x(i).toFixed(1)}" y="${H-6}" text-anchor="${i===0?'start':i===meses.length-1?'end':'middle'}">${m}</text>`).join('');
-  const last=vals.length-1;
-  const svg=`<svg class="pc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Faturamento de maio a outubro, subindo nos últimos três meses">${grid}`+
-    `<polygon points="${x(0)},${H-B} ${pts} ${x(last)},${H-B}" style="fill:var(--accent)" fill-opacity=".08"/>`+
-    `<polyline points="${pts}" fill="none" style="stroke:var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`+
-    `<circle cx="${x(last)}" cy="${y(vals[last])}" r="4" style="fill:var(--accent);stroke:var(--surface)" stroke-width="2"/>${lbls}</svg>`;
-  const chart=el('div'); chart.innerHTML=svg;
-  const fill=el('i',{style:'width:92%'}), tick=el('u',{style:'left:73%',title:'Onde você deveria estar hoje'});
-  return el('div',{class:'lp-prev','aria-label':'Exemplo do painel com dados fictícios'},
-    el('div',{class:'ph'},el('b',{text:'Exemplo · Vendas'}),el('span',{text:'dados fictícios'})),
-    el('div',{class:'pk'},el('div',{},el('small',{text:'Faturamento de outubro'}),el('div',{class:'v',text:'18.420,50'})),el('span',{class:'d',text:'+10,3% vs setembro'})),
-    chart.firstChild,
-    el('div',{class:'pn'},el('b',{text:'Sobre este gráfico'}),'O faturamento subiu três meses seguidos e outubro foi o maior mês do período.'),
-    el('div',{class:'pg'},el('div',{class:'gt'},el('span',{},'Meta de outubro · ',el('b',{text:'20.000'})),el('span',{text:'92%'})),
-      el('div',{class:'gb'},fill,tick),
-      el('span',{class:'gs',text:'Acima do ritmo: faltam 1.579,50 para a meta'})));
-}
-function loginScreen(){
-  // versão do GitHub Pages: sem conta Google, "Entrar" abre o painel em modo demonstração
-  const enter=()=>el('button',{class:'btn primary lp-enter',onclick:startDemo},'Entrar');
-  const btn=NO_LOGIN?enter():el('button',{class:'google-btn',onclick:()=>signIn(btn)},googleLogo(),'Entrar com Google');
-  const step=(n,t,d)=>el('li',{},el('span',{class:'n',text:n}),el('div',{},el('b',{text:t}),el('span',{text:d})));
-  // dividido 7/5: chamada à esquerda, processo à direita (sem ícones soltos, sem números inventados)
-  // página pública: apresenta só recursos que o produto tem de verdade (sem preços, números ou depoimentos inventados)
-  const feat=(ic,t,d)=>{ const s=icon(ic); s.setAttribute('width','20'); s.setAttribute('height','20'); return el('div',{class:'lp-f'},el('span',{class:'lp-ic'},s),el('b',{text:t}),el('p',{text:d})); };
-  const btn2=NO_LOGIN?enter():el('button',{class:'google-btn',onclick:()=>signIn(btn2)},googleLogo(),'Entrar com Google');
-  const landing=el('div',{class:'landing'},
-    el('section',{class:'lp-sec'},el('div',{class:'kicker',text:'Recursos'}),el('h2',{text:'Tudo o que você precisa para entender seus dados'}),
-      el('div',{class:'lp-grid'},
-        feat('upload','Qualquer arquivo','Excel, CSV, Google Sheets, extratos em PDF ou OFX, XML de notas fiscais e fotos de tabelas. Abas de meses viram uma base só.'),
-        feat('table','Limpeza automática','Remove linhas de total, cabeçalhos repetidos e vazios, corrige tipos e padroniza nomes escritos de jeitos diferentes.'),
-        feat('chart','Gráficos que fazem sentido','Reconhece vendas, financeiro, estoque, RH e marketing e monta os gráficos certos, cada um com explicação.'),
-        feat('map','Mapa, funil e tabela dinâmica','Mapa do Brasil por estado, funil de etapas, barras empilhadas, linha com tendência e tabela dinâmica.'),
-        feat('clock','Metas e alertas','Acompanhe metas e limites no ritmo do mês e receba alertas automáticos quando algo foge do padrão.'),
-        feat('pdf','Relatórios e apresentações','PDF explicado, PowerPoint editável e envio pelo WhatsApp, com seu logo e sua cor.'),
-        feat('tv','Modo TV ao vivo','Painel em tela cheia para a TV da empresa, que se atualiza sozinho quando os dados mudam.'),
-        feat('send','Link para clientes','Compartilhe um painel somente leitura por link, sem o cliente precisar de conta.'),
-        feat('pivot','Consulta SQL e fórmulas','Cruze todas as suas bases com SQL e crie colunas calculadas como lucro e margem.'),
-        feat('model','CNPJ e CEP','Complete a base com dados públicos da Receita Federal e endereços, um por vez ou todos de uma vez.'))),
-    el('section',{class:'lp-sec lp-cta'},el('h2',{text:'Comece com uma planilha que você já tem'}),el('p',{text:NO_LOGIN?'Toque em Entrar: o painel abre com uma planilha de exemplo e você pode enviar os seus arquivos.':'Entre com sua conta Google e envie o primeiro arquivo. Se preferir, veja antes uma demonstração com dados fictícios, sem criar conta.'}),
-      el('div',{class:'lp-btns'},btn2,NO_LOGIN?null:el('button',{class:'btn lp-demo',onclick:startDemo},'Ver demonstração'))));
-  return el('div',{class:'landing-wrap'},el('div',{class:'login-wrap'},
-    el('section',{class:'login-main stagger'},
-      el('div',{class:'kicker',text:'Painel de Planilhas'}),
-      el('h1',{text:'Planilhas viram decisões'}),
-      el('p',{class:'lead',text:'Envie planilhas, extratos e faturas em PDF. O painel limpa os dados, monta gráficos explicados, acompanha metas e gera relatórios e apresentações prontos para enviar.'}),
-      el('div',{class:'lp-btns'},btn,NO_LOGIN?null:el('button',{class:'btn lp-demo',onclick:startDemo},'Ver demonstração sem conta')),
-      el('p',{class:'login-note',text:NO_LOGIN?'Não precisa de conta: os dados ficam só no seu navegador, nesta aba, e somem ao fechar.':'Cada conta vê apenas as próprias bases. Usamos só seu nome, e-mail e foto do Google para identificar você.'})),
-    el('section',{class:'login-side','aria-label':'Como funciona'},
-      loginPreview(),
-      el('div',{class:'kicker',text:'Como funciona'}),
-      el('ol',{class:'steps stagger'},
-        step('01','Envie um arquivo','Excel, CSV, extrato em PDF ou OFX, XML de nota fiscal ou a foto de uma tabela'),
-        step('02','Veja os gráficos','Escolhidos de acordo com os seus dados, cada um com uma explicação curta'),
-        step('03','Conecte e exporte','Cruze bases entre si e baixe o relatório em PDF com sua empresa')))),landing);
-}
 function setupScreen(){
   const code=t=>el('code',{text:t});
   return el('div',{class:'empty'},el('div',{class:'empty-box setup'},
@@ -237,4 +177,4 @@ function setupScreen(){
       el('li',{},'Publique com ',code('firebase deploy'),' (ou teste com ',code('firebase serve'),' em localhost).')):null));
 }
 
-export { ICONS, googleLogo, icon, lastViewKey, loginPreview, loginScreen, render, renderMain, renderSidebar, setupScreen, tyIcon };
+export { ICONS, googleLogo, icon, lastViewKey, render, renderMain, renderSidebar, setupScreen, tyIcon };
