@@ -60,11 +60,3 @@ Sem login, o botão "Ver demonstração sem conta" abre o app com dados fictíci
 ## Publicação automática
 
 O workflow `.github/workflows/ci.yml` roda os testes em todo push e pull request. Para ele também publicar o site, adicione o segredo `FIREBASE_SERVICE_ACCOUNT` no repositório, com a chave JSON de uma conta de serviço do Firebase (Console do Firebase > Configurações do projeto > Contas de serviço > Gerar nova chave privada). Pull requests ganham uma prévia temporária com link.
-
-## Usar com o seu próprio Firebase
-
-1. Crie um projeto em https://console.firebase.google.com, ative o login com Google e crie um banco no Cloud Firestore.
-2. Troque o objeto `FIREBASE_CONFIG` em `src/config/firebase-config.js` pelos dados do seu app web.
-3. Publique as regras e o site: `firebase deploy --only firestore:rules,hosting --project SEU_PROJETO`.
-
-A chave `apiKey` do `FIREBASE_CONFIG` não é secreta: ela identifica o projeto no navegador. Quem protege os dados são as regras do Firestore.
