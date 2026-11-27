@@ -6,7 +6,7 @@ import { basesCol, loadRows } from '../core/storage.js';
 import { $, el, toast } from '../core/utils.ts';
 import { syncSheet } from '../features/google-sheets.js';
 import { setBaseline } from '../features/history.js';
-import { seedSampleOnce } from '../features/sample-and-tour.js';
+import { seedSampleOnce, startDemo } from '../features/sample-and-tour.js';
 import { openShare } from '../features/share.js';
 import { ensureRelated, modelDragging } from '../views/data-model.js';
 
@@ -18,6 +18,8 @@ let downloads={ save:async({filename,data})=>{
   const url=URL.createObjectURL(blob); const a=el('a',{href:url,download:filename});
   document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
 }};
+// versão do GitHub Pages: só demonstração, sem login (os dados ficam na aba)
+const NO_LOGIN=/.github.io$/i.test(location.hostname);
 const firebaseConfigured=()=>!!(window.firebase && FIREBASE_CONFIG.apiKey && !/COLE_AQUI/.test(FIREBASE_CONFIG.apiKey) && !/SEU-PROJETO/.test(FIREBASE_CONFIG.projectId));
 
 // app instalável (PWA): service worker e botão "Instalar app"
@@ -31,12 +33,13 @@ async function init(){
     S.mode='setup'; setStatus('warn',window.firebase?'Firebase não configurado':'Sem conexão com o Firebase'); render(); return;
   }
   firebase.initializeApp(FIREBASE_CONFIG);
-  S.auth=firebase.auth();
   S.db=firebase.firestore();
   S.db.settings({ignoreUndefinedProperties:true});
   // link compartilhado (?v=…): abre o painel somente leitura, sem login
   const shareTok=new URLSearchParams(location.search).get('v');
   if (shareTok&&/^[a-z0-9]{12,40}$/.test(shareTok)){ openShare(shareTok); return; }
+  if (NO_LOGIN){ document.body.classList.add('no-login'); await startDemo(); return; }
+  S.auth=firebase.auth();
   try{ await S.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
   S.auth.getRedirectResult().catch(e=>authError(e));
   S.auth.onAuthStateChanged(user=>{
@@ -187,4 +190,4 @@ async function openBase(id){
   if (S.currentId===id){ render(); if(meta&&meta.source) syncSheet(currentMeta(),true); } // base ligada ao Google Sheets: busca a versão mais nova
 }
 
-export { authError, baseAbbr, basesTimer, currentMeta, downloads, fillAvatar, firebaseConfigured, goHome, init, initials, installApp, leaveProfile, openBase, openBaseTab, openProfile, profileName, renderUser, setAsideCollapsed, setStatus, signIn, signOut, subscribeBases };
+export { NO_LOGIN, authError, baseAbbr, basesTimer, currentMeta, downloads, fillAvatar, firebaseConfigured, goHome, init, initials, installApp, leaveProfile, openBase, openBaseTab, openProfile, profileName, renderUser, setAsideCollapsed, setStatus, signIn, signOut, subscribeBases };

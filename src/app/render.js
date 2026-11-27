@@ -1,4 +1,4 @@
-import { baseAbbr, currentMeta, openBase, signIn } from './init.js';
+import { NO_LOGIN, baseAbbr, currentMeta, openBase, signIn } from './init.js';
 import { baseEntries, sheetLabel } from '../core/groups.js';
 import { boardView } from '../views/board.js';
 import { destroyCharts } from '../charts/draw-and-pdf.js';
@@ -42,7 +42,7 @@ function renderMain(){
   if (S.mode==='share'){ main.append(S.view==='tv'&&!S.share.error&&!S.share.loading?tvView():shareView()); return; }
   if (S.mode==='login'){ main.append(loginScreen()); return; }
   if (S.mode==='setup'){ main.append(setupScreen()); return; }
-  if (S.mode==='local') main.append(el('div',{class:'banner warn demo-banner'},el('span',{text:'Você não está conectado com sua conta, então os dados ficam só nesta aba e somem ao fechar. Entre com sua conta Google para salvar e acessar de qualquer lugar.'}),
+  if (S.mode==='local') main.append(el('div',{class:'banner warn demo-banner'},el('span',{text:NO_LOGIN?'Versão de demonstração, sem login: tudo funciona, mas os dados ficam só nesta aba e somem ao fechar. Baixe em Excel ou PDF o que quiser guardar.':'Você não está conectado com sua conta, então os dados ficam só nesta aba e somem ao fechar. Entre com sua conta Google para salvar e acessar de qualquer lugar.'}),
     S.auth?el('button',{class:'btn sm primary',onclick:e=>signIn(e.currentTarget)},'Entrar com Google'):null));
   if (S.readOnly && S.mode==='cloud') main.append(el('div',{class:'banner'},'Seu acesso a esta página é somente leitura, então não é possível salvar bases. Peça ao dono da página para te convidar como Editor.'));
   if (S.mode==='loading' || (S.mode==='cloud' && !S.basesLoaded)){ main.append(el('div',{class:'empty'},el('div',{class:'empty-box'},el('span',{class:'spinner'}),el('p',{style:'margin-top:12px',text:'Carregando suas bases…'})))); return; }
