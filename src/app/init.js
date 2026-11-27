@@ -6,7 +6,7 @@ import { basesCol, loadRows } from '../core/storage.js';
 import { $, el, toast } from '../core/utils.ts';
 import { syncSheet } from '../features/google-sheets.js';
 import { setBaseline } from '../features/history.js';
-import { seedSampleOnce, startDemo } from '../features/sample-and-tour.js';
+import { seedSampleOnce } from '../features/sample-and-tour.js';
 import { openShare } from '../features/share.js';
 import { ensureRelated, modelDragging } from '../views/data-model.js';
 
@@ -38,7 +38,8 @@ async function init(){
   // link compartilhado (?v=…): abre o painel somente leitura, sem login
   const shareTok=new URLSearchParams(location.search).get('v');
   if (shareTok&&/^[a-z0-9]{12,40}$/.test(shareTok)){ openShare(shareTok); return; }
-  if (NO_LOGIN){ document.body.classList.add('no-login'); await startDemo(); return; }
+  // GitHub Pages: mostra a página de entrada, mas o botão "Entrar" abre a demonstração (sem conta Google)
+  if (NO_LOGIN){ document.body.classList.add('no-login'); S.uid=null; S.me=null; S.mode='login'; setStatus('', 'Versão de demonstração'); render(); return; }
   S.auth=firebase.auth();
   try{ await S.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
   S.auth.getRedirectResult().catch(e=>authError(e));

@@ -186,12 +186,14 @@ function loginPreview(){
       el('span',{class:'gs',text:'Acima do ritmo: faltam 1.579,50 para a meta'})));
 }
 function loginScreen(){
-  const btn=el('button',{class:'google-btn',onclick:()=>signIn(btn)},googleLogo(),'Entrar com Google');
+  // versão do GitHub Pages: sem conta Google, "Entrar" abre o painel em modo demonstração
+  const enter=()=>el('button',{class:'btn primary lp-enter',onclick:startDemo},'Entrar');
+  const btn=NO_LOGIN?enter():el('button',{class:'google-btn',onclick:()=>signIn(btn)},googleLogo(),'Entrar com Google');
   const step=(n,t,d)=>el('li',{},el('span',{class:'n',text:n}),el('div',{},el('b',{text:t}),el('span',{text:d})));
   // dividido 7/5: chamada à esquerda, processo à direita (sem ícones soltos, sem números inventados)
   // página pública: apresenta só recursos que o produto tem de verdade (sem preços, números ou depoimentos inventados)
   const feat=(ic,t,d)=>{ const s=icon(ic); s.setAttribute('width','20'); s.setAttribute('height','20'); return el('div',{class:'lp-f'},el('span',{class:'lp-ic'},s),el('b',{text:t}),el('p',{text:d})); };
-  const btn2=el('button',{class:'google-btn',onclick:()=>signIn(btn2)},googleLogo(),'Entrar com Google');
+  const btn2=NO_LOGIN?enter():el('button',{class:'google-btn',onclick:()=>signIn(btn2)},googleLogo(),'Entrar com Google');
   const landing=el('div',{class:'landing'},
     el('section',{class:'lp-sec'},el('div',{class:'kicker',text:'Recursos'}),el('h2',{text:'Tudo o que você precisa para entender seus dados'}),
       el('div',{class:'lp-grid'},
@@ -205,15 +207,15 @@ function loginScreen(){
         feat('send','Link para clientes','Compartilhe um painel somente leitura por link, sem o cliente precisar de conta.'),
         feat('pivot','Consulta SQL e fórmulas','Cruze todas as suas bases com SQL e crie colunas calculadas como lucro e margem.'),
         feat('model','CNPJ e CEP','Complete a base com dados públicos da Receita Federal e endereços, um por vez ou todos de uma vez.'))),
-    el('section',{class:'lp-sec lp-cta'},el('h2',{text:'Comece com uma planilha que você já tem'}),el('p',{text:'Entre com sua conta Google e envie o primeiro arquivo. Se preferir, veja antes uma demonstração com dados fictícios, sem criar conta.'}),
-      el('div',{class:'lp-btns'},btn2,el('button',{class:'btn lp-demo',onclick:startDemo},'Ver demonstração'))));
+    el('section',{class:'lp-sec lp-cta'},el('h2',{text:'Comece com uma planilha que você já tem'}),el('p',{text:NO_LOGIN?'Toque em Entrar: o painel abre com uma planilha de exemplo e você pode enviar os seus arquivos.':'Entre com sua conta Google e envie o primeiro arquivo. Se preferir, veja antes uma demonstração com dados fictícios, sem criar conta.'}),
+      el('div',{class:'lp-btns'},btn2,NO_LOGIN?null:el('button',{class:'btn lp-demo',onclick:startDemo},'Ver demonstração'))));
   return el('div',{class:'landing-wrap'},el('div',{class:'login-wrap'},
     el('section',{class:'login-main stagger'},
       el('div',{class:'kicker',text:'Painel de Planilhas'}),
       el('h1',{text:'Planilhas viram decisões'}),
       el('p',{class:'lead',text:'Envie planilhas, extratos e faturas em PDF. O painel limpa os dados, monta gráficos explicados, acompanha metas e gera relatórios e apresentações prontos para enviar.'}),
-      el('div',{class:'lp-btns'},btn,el('button',{class:'btn lp-demo',onclick:startDemo},'Ver demonstração sem conta')),
-      el('p',{class:'login-note',text:'Cada conta vê apenas as próprias bases. Usamos só seu nome, e-mail e foto do Google para identificar você.'})),
+      el('div',{class:'lp-btns'},btn,NO_LOGIN?null:el('button',{class:'btn lp-demo',onclick:startDemo},'Ver demonstração sem conta')),
+      el('p',{class:'login-note',text:NO_LOGIN?'Não precisa de conta: os dados ficam só no seu navegador, nesta aba, e somem ao fechar.':'Cada conta vê apenas as próprias bases. Usamos só seu nome, e-mail e foto do Google para identificar você.'})),
     el('section',{class:'login-side','aria-label':'Como funciona'},
       loginPreview(),
       el('div',{class:'kicker',text:'Como funciona'}),

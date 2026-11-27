@@ -208,3 +208,4 @@ a,.linkish{color:var(--accent)}
 
 /* versão do GitHub Pages (sem login) */
 .no-login #logoutBtn{display:none!important}
+.lp-enter{display:inline-flex!important;align-items:center;justify-content:center;height:44px;padding:0 32px!important;font-size:15px!important;min-width:160px}
