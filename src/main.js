@@ -65,7 +65,7 @@ import { keepAwake } from './features/tv-mode.js';
 import { handleFiles, pickFile } from './import/upload.js';
 import { deleteRelation, openModel } from './views/data-model.js';
 
-if ('serviceWorker' in navigator&&location.protocol==='https:') navigator.serviceWorker.register('/sw.js').catch(e=>console.warn(e));
+if ('serviceWorker' in navigator&&location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(e=>console.warn(e));
 window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); S.installEvt=e; if(S.view==='home'||S.view==='perfil') render(); });
 window.addEventListener('appinstalled',()=>{ S.installEvt=null; toast('App instalado. Abra pelo ícone “Planilhas”.'); });
 $('#userchip').addEventListener('click',openProfile);

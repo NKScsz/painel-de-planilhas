@@ -15,7 +15,9 @@ import { vizData } from '../views/data-model.js';
 
 /* ----- Link de compartilhamento (somente leitura, sem login) ----- */
 const shareRef=t=>S.db.collection('shares').doc(t);
-const shareUrl=t=>`${location.origin}/?v=${t}`;
+// endereço do app (raiz no Firebase, subpasta no GitHub Pages)
+const appUrl=()=>location.origin+location.pathname.replace(/[^/]*$/,'');
+const shareUrl=t=>`${appUrl()}?v=${t}`;
 function newToken(){ const a=new Uint8Array(18); crypto.getRandomValues(a); return [...a].map(b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join(''); }
 const shareSig={}; let shareTimer=null;
 function scheduleShare(meta){
@@ -137,7 +139,7 @@ function shareView(){
   if (S.share.loading){ v.append(el('div',{class:'muted'},el('span',{class:'spinner'}),'  Carregando painel…')); return v; }
   if (S.share.error){ v.append(el('div',{class:'empty'},el('div',{class:'empty-box'},el('h1',{text:'Link indisponível'}),
     el('p',{text:'Este link foi desativado por quem compartilhou ou está incompleto. Peça um link novo a essa pessoa.'}),
-    el('a',{class:'btn',href:location.origin+'/'},'Conhecer o Painel de Planilhas')))); return v; }
+    el('a',{class:'btn',href:appUrl()},'Conhecer o Painel de Planilhas')))); return v; }
   const meta=currentMeta(), by=S.share.by||{}, b=by.brand||{}, bname=b.name||by.company||'';
   if (/^#[0-9a-f]{6}$/i.test(b.color||'')&&lum(b.color)<0.55) v.style.cssText=`--accent:${b.color};--accent-strong:${b.color}`;
   v.append(el('div',{class:'share-head'},
@@ -147,7 +149,7 @@ function shareView(){
     el('div',{class:'head-actions'},el('button',{class:'btn primary',onclick:()=>exportChartsPdf(meta),disabled:!(meta.charts||[]).length},icon('pdf'),'Baixar PDF'))));
   v.append(el('div',{class:'banner'},'Cópia somente leitura. Use os filtros e clique nos gráficos para explorar: nada do que você fizer aqui altera os dados.'));
   const body=el('div'); v.append(body); renderViz(body,meta);
-  v.append(el('div',{class:'share-foot'},'Feito com ',el('a',{href:location.origin+'/',text:'Painel de Planilhas'}),': transforme planilhas em painéis e relatórios.'));
+  v.append(el('div',{class:'share-foot'},'Feito com ',el('a',{href:appUrl(),text:'Painel de Planilhas'}),': transforme planilhas em painéis e relatórios.'));
   return v;
 }
 

@@ -2,8 +2,10 @@
    - Página: rede primeiro (sempre a versão mais nova); sem internet, abre a última versão guardada.
    - Arquivos do build (/assets/) e bibliotecas de CDN (versões fixas): cache primeiro, para abrir mais rápido.
    - Dados (Firestore, login, APIs) nunca passam por aqui: vão direto para a rede. */
-const VERSION = 'pp-v2';
-const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
+const VERSION = 'pp-v3';
+// caminhos relativos ao sw.js: funciona na raiz (Firebase) e em subpasta (GitHub Pages)
+const SHELL = ['./', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
+const ROOT = new URL('./', self.location).href;
 const CDN = /^(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|www\.gstatic\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
 
 self.addEventListener('install', e => {
@@ -22,13 +24,13 @@ self.addEventListener('fetch', e => {
     if (url.pathname.startsWith('/__/')) return; // login do Firebase
     if (req.mode === 'navigate') {
       e.respondWith(fetch(req).then(res => {
-        if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put('/', copy)); }
+        if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(ROOT, copy)); }
         return res;
       }).catch(() => caches.match('/')));
       return;
     }
     // arquivos do build (/assets/nome-HASH.js|css): o nome muda a cada versão, então cache primeiro
-    if (/\.(png|webmanifest)$/.test(url.pathname) || url.pathname.startsWith('/assets/')) {
+    if (/\.(png|webmanifest)$/.test(url.pathname) || url.pathname.includes('/assets/')) {
       e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
         if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
         return res;
